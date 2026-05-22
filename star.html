@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>STAR Topology Hunt</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #1e3a8a 0%, #020617 42%, #000000 100%);
+      color: white;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .page {
+      max-width: 590px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 34px rgba(56, 189, 248, 0.18);
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .top-label {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.15);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    .score-pill {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.14);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    h1 {
+      margin: 8px 0 14px;
+      color: #38bdf8;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+
+    .mission-box {
+      background: rgba(8, 47, 73, 0.8);
+      border: 1px solid rgba(125, 211, 252, 0.45);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+
+    .mission-box strong {
+      color: #7dd3fc;
+    }
+
+    .progress-wrap {
+      margin-top: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 14px;
+      background: linear-gradient(90deg, #22c55e, #38bdf8);
+      transition: width 0.3s ease;
+    }
+
+    .hunt-progress-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: #dbeafe;
+      line-height: 1.4;
+      font-size: 0.9rem;
+    }
+
+    .image-zone {
+      position: relative;
+      width: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: #020617;
+      margin-bottom: 12px;
+    }
+
+    .image-zone img {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .tap-hint {
+      font-size: 0.9rem;
+      color: #93c5fd;
+      margin: 8px 0 14px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .tap-zone {
+      position: absolute;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+    }
+
+    /*
+      To see tap zones while editing, change opacity from 0 to 0.25.
+    */
+    .tap-zone::after {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      background: rgba(34, 197, 94, 0.35);
+      border: 2px dashed rgba(255, 255, 255, 0.8);
+      opacity: 0;
+    }
+
+    .tap-zone:active::after {
+      opacity: 0.35;
+    }
+
+    /*
+      STAR image tap zones.
+      These are based on the STAR picture you uploaded.
+    */
+
+    .desktop-zone {
+      top: 15%;
+      left: 4%;
+      width: 27%;
+      height: 20%;
+    }
+
+    .server-zone {
+      top: 9%;
+      left: 42%;
+      width: 18%;
+      height: 22%;
+    }
+
+    .printer-zone {
+      top: 23%;
+      left: 70%;
+      width: 26%;
+      height: 18%;
+    }
+
+    .laptop-left-zone {
+      top: 48%;
+      left: 3%;
+      width: 29%;
+      height: 19%;
+    }
+
+    .phone-zone {
+      top: 67%;
+      left: 14%;
+      width: 13%;
+      height: 17%;
+    }
+
+    .tablet-zone {
+      top: 69%;
+      left: 43%;
+      width: 17%;
+      height: 17%;
+    }
+
+    .laptop-right-zone {
+      top: 49%;
+      left: 73%;
+      width: 24%;
+      height: 18%;
+    }
+
+    .storage-zone {
+      top: 68%;
+      left: 72%;
+      width: 24%;
+      height: 20%;
+    }
+
+    .switch-zone {
+      top: 39%;
+      left: 34%;
+      width: 32%;
+      height: 18%;
+    }
+
+    .info-box {
+      display: none;
+      background: rgba(2, 6, 23, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 12px 0;
+      line-height: 1.45;
+    }
+
+    .info-box h3 {
+      margin-top: 0;
+      color: #7dd3fc;
+    }
+
+    .explored-tag {
+      color: #86efac;
+      font-weight: bold;
+    }
+
+    .section {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(30, 41, 59, 0.86);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      font-size: 1.15rem;
+      color: #bfdbfe;
+    }
+
+    .section p,
+    .section li {
+      color: #e2e8f0;
+      line-height: 1.45;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #052e16;
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.24);
+    }
+
+    .btn-blue {
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      color: white;
+    }
+
+    .btn-dark {
+      background: linear-gradient(135deg, #475569, #1e293b);
+      color: white;
+    }
+
+    .btn-answer {
+      background: linear-gradient(135deg, #334155, #1e293b);
+      color: white;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: none;
+    }
+
+    .btn-answer:hover {
+      background: linear-gradient(135deg, #475569, #334155);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .answer {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .correct {
+      background: rgba(34, 197, 94, 0.18);
+      border: 1px solid rgba(34, 197, 94, 0.55);
+      color: #86efac;
+    }
+
+    .wrong {
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.55);
+      color: #fca5a5;
+    }
+
+    .clue-box {
+      display: none;
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(22, 101, 52, 0.85), rgba(8, 47, 73, 0.9));
+      border: 1px solid rgba(134, 239, 172, 0.65);
+      box-shadow: 0 0 26px rgba(34, 197, 94, 0.18);
+    }
+
+    .clue-box h2 {
+      color: #bbf7d0;
+      margin-top: 0;
+    }
+
+    .clue-text {
+      font-size: 1.05rem;
+      color: white;
+      line-height: 1.5;
+      font-weight: bold;
+    }
+
+    .locked-box {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(69, 26, 3, 0.65);
+      border: 1px dashed rgba(251, 191, 36, 0.7);
+      color: #fde68a;
+      line-height: 1.4;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 18px;
+    }
+  </style>
+
+  <script>
+    /*
+      =============================
+      PAGE SETTINGS - STAR
+      =============================
+    */
+
+    const topologyKey = "star";
+    const topologyName = "STAR";
+    const nextTopologyName = "BUS";
+
+    /*
+      Location-based clue.
+      This does not rely on the student already knowing what BUS means.
+    */
+    const nextClue = "Next QR clue: Find the place where people stop, refuel and gather around one shared space. Look around the T-Bar area.";
+
+    const finalClue = "Final checkpoint: You have completed all 9 network topologies. Return to the instructor and show your completed hunt progress.";
+
+    const allTopologies = [
+      "lan",
+      "star",
+      "bus",
+      "ring",
+      "mesh",
+      "point-to-point",
+      "wan",
+      "man",
+      "san"
+    ];
+
+    const requiredItems = [
+      "switch",
+      "desktop",
+      "server",
+      "printer",
+      "laptop",
+      "phone",
+      "tablet",
+      "storage"
+    ];
+
+    const exploredItems = new Set();
+
+    let questionOneComplete = false;
+    let questionTwoComplete = false;
+
+    /*
+      =============================
+      IMAGE TAP INFORMATION
+      =============================
+    */
+
+    function showInfo(type) {
+      const box = document.getElementById("infoBox");
+
+      let title = "";
+      let text = "";
+
+      if (type === "switch") {
+        title = "Central Switch";
+        text = "In a star topology, the switch is the central connection point. All connected devices communicate through this central device.";
+      }
+
+      if (type === "desktop") {
+        title = "Desktop Computer";
+        text = "A desktop is an end device. In a star topology, it has its own connection back to the central switch.";
+      }
+
+      if (type === "server") {
+        title = "Server";
+        text = "A server can provide shared services such as files, authentication, storage or applications. It connects back to the central switch like the other devices.";
+      }
+
+      if (type === "printer") {
+        title = "Network Printer";
+        text = "A printer can be shared on the network. In this layout, it connects to the central switch so users can access it.";
+      }
+
+      if (type === "laptop") {
+        title = "Laptop";
+        text = "A laptop is an end device. It may connect by cable or wireless, but in this diagram it is shown as part of the star layout.";
+      }
+
+      if (type === "phone") {
+        title = "Mobile Device";
+        text = "Mobile devices can access network services when connected through the correct network infrastructure, such as wireless access points linked into the LAN.";
+      }
+
+      if (type === "tablet") {
+        title = "Tablet";
+        text = "A tablet is another end device. It still relies on the central network infrastructure to communicate with other devices and services.";
+      }
+
+      if (type === "storage") {
+        title = "Network Storage";
+        text = "Network storage provides shared storage space. In a star topology, it is accessed through the central switch.";
+      }
+
+      exploredItems.add(type);
+      updatePageProgress();
+
+      box.innerHTML =
+        "<h3>" + title + "</h3>" +
+        "<p>" + text + "</p>" +
+        "<p class='explored-tag'>Item explored ✅</p>";
+
+      box.style.display = "block";
+      box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    /*
+      =============================
+      PAGE PROGRESS
+      =============================
+    */
+
+    function updatePageProgress() {
+      const count = exploredItems.size;
+      const total = requiredItems.length;
+      const percentage = Math.round((count / total) * 100);
+
+      document.getElementById("exploreCount").innerText = count + "/" + total + " items explored";
+      document.getElementById("progressBar").style.width = percentage + "%";
+
+      checkUnlockStatus();
+    }
+
+    function toggle(id) {
+      const element = document.getElementById(id);
+      element.classList.toggle("hidden");
+    }
+
+    function answerQuestion(questionNumber, isCorrect) {
+      const correctBox = document.getElementById("correctAnswer" + questionNumber);
+      const wrongBox = document.getElementById("wrongAnswer" + questionNumber);
+
+      correctBox.style.display = "none";
+      wrongBox.style.display = "none";
+
+      if (isCorrect) {
+        correctBox.style.display = "block";
+
+        if (questionNumber === 1) {
+          questionOneComplete = true;
+        }
+
+        if (questionNumber === 2) {
+          questionTwoComplete = true;
+        }
+      } else {
+        wrongBox.style.display = "block";
+      }
+
+      checkUnlockStatus();
+    }
+
+    function checkUnlockStatus() {
+      const allItemsExplored = exploredItems.size >= requiredItems.length;
+      const allQuestionsComplete = questionOneComplete && questionTwoComplete;
+
+      if (allItemsExplored && allQuestionsComplete) {
+        markThisTopologyComplete();
+        unlockClue();
+      } else {
+        updateLockedMessage(allItemsExplored, allQuestionsComplete);
+      }
+    }
+
+    function updateLockedMessage(itemsDone, questionsDone) {
+      const locked = document.getElementById("lockedBox");
+
+      if (!itemsDone && !questionsDone) {
+        locked.innerHTML = "🔒 Clue locked. Explore all STAR items and answer both quick-check questions.";
+      } else if (!itemsDone && questionsDone) {
+        locked.innerHTML = "🔒 Almost there. You answered the questions, now tap all items in the STAR diagram.";
+      } else if (itemsDone && !questionsDone) {
+        locked.innerHTML = "🔒 Almost there. You explored the STAR diagram, now answer both quick-check questions.";
+      }
+    }
+
+    /*
+      =============================
+      FULL 9-TOPOLOGY HUNT TRACKER
+      =============================
+    */
+
+    function getCompletedTopologies() {
+      const saved = localStorage.getItem("completed_topologies");
+
+      if (!saved) {
+        return [];
+      }
+
+      try {
+        return JSON.parse(saved);
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveCompletedTopologies(list) {
+      localStorage.setItem("completed_topologies", JSON.stringify(list));
+    }
+
+    function markThisTopologyComplete() {
+      let completed = getCompletedTopologies();
+
+      if (!completed.includes(topologyKey)) {
+        completed.push(topologyKey);
+        saveCompletedTopologies(completed);
+      }
+
+      updateFullHuntProgress();
+    }
+
+    function updateFullHuntProgress() {
+      const completed = getCompletedTopologies();
+      const completedCount = completed.length;
+      const totalCount = allTopologies.length;
+
+      const remaining = allTopologies.filter(function (item) {
+        return !completed.includes(item);
+      });
+
+      let remainingText = "";
+
+      if (remaining.length === 0) {
+        remainingText = "All topologies completed.";
+      } else {
+        remainingText = "Still to complete: " + remaining.map(formatTopologyName).join(", ");
+      }
+
+      document.getElementById("fullHuntProgress").innerHTML =
+        "<strong>Full hunt progress:</strong> " +
+        completedCount + "/" + totalCount + " topologies complete.<br>" +
+        remainingText;
+    }
+
+    function formatTopologyName(key) {
+      if (key === "lan") return "LAN";
+      if (key === "star") return "STAR";
+      if (key === "bus") return "BUS";
+      if (key === "ring") return "RING";
+      if (key === "mesh") return "MESH";
+      if (key === "point-to-point") return "POINT-TO-POINT";
+      if (key === "wan") return "WAN";
+      if (key === "man") return "MAN";
+      if (key === "san") return "SAN";
+      return key.toUpperCase();
+    }
+
+    function allTopologiesComplete() {
+      const completed = getCompletedTopologies();
+
+      return allTopologies.every(function (item) {
+        return completed.includes(item);
+      });
+    }
+
+    function unlockClue() {
+      const clueBox = document.getElementById("clueBox");
+      const lockedBox = document.getElementById("lockedBox");
+
+      if (allTopologiesComplete()) {
+        document.getElementById("clueTitle").innerText = "Final Checkpoint Unlocked";
+        document.getElementById("clueText").innerText = finalClue;
+      } else {
+        document.getElementById("clueTitle").innerText = "Next QR Clue Unlocked";
+        document.getElementById("clueText").innerText = nextClue;
+      }
+
+      clueBox.style.display = "block";
+      lockedBox.style.display = "none";
+    }
+
+    function completeMission() {
+      const allItemsExplored = exploredItems.size >= requiredItems.length;
+      const allQuestionsComplete = questionOneComplete && questionTwoComplete;
+
+      if (allItemsExplored && allQuestionsComplete && allTopologiesComplete()) {
+        alert("✅ Full hunt complete. Return to the instructor.");
+      } else if (allItemsExplored && allQuestionsComplete) {
+        alert("✅ " + topologyName + " complete. Follow the clue to the next QR.");
+      } else {
+        alert("🔒 Not complete yet. Explore all items and answer both questions.");
+      }
+    }
+
+    function resetHuntProgress() {
+      const confirmReset = confirm("Reset this phone's hunt progress? Only use this before starting a fresh run.");
+
+      if (confirmReset) {
+        localStorage.removeItem("completed_topologies");
+        location.reload();
+      }
+    }
+
+    window.onload = function () {
+      updatePageProgress();
+      updateLockedMessage(false, false);
+      updateFullHuntProgress();
+    };
+  </script>
+</head>
+
+<body>
+  <main class="page">
+    <section class="card">
+
+      <div class="top-row">
+        <div class="top-label">NETWORK TOPOLOGY HUNT</div>
+        <div id="exploreCount" class="score-pill">0/8 items explored</div>
+      </div>
+
+      <h1>STAR Topology</h1>
+
+      <div class="mission-box">
+        <strong>Mission:</strong>
+        Tap the items in the diagram, reveal the key information, answer both questions,
+        then unlock the clue to your next QR location.
+
+        <div class="progress-wrap">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <div id="fullHuntProgress" class="hunt-progress-box">
+          Full hunt progress loading...
+        </div>
+      </div>
+
+      <div class="image-zone">
+
+        <img src="star.png" alt="STAR topology diagram">
+
+        <button class="tap-zone desktop-zone" onclick="showInfo('desktop')" aria-label="Desktop computer"></button>
+        <button class="tap-zone server-zone" onclick="showInfo('server')" aria-label="Server"></button>
+        <button class="tap-zone printer-zone" onclick="showInfo('printer')" aria-label="Printer"></button>
+        <button class="tap-zone laptop-left-zone" onclick="showInfo('laptop')" aria-label="Laptop"></button>
+        <button class="tap-zone phone-zone" onclick="showInfo('phone')" aria-label="Mobile phone"></button>
+        <button class="tap-zone tablet-zone" onclick="showInfo('tablet')" aria-label="Tablet"></button>
+        <button class="tap-zone laptop-right-zone" onclick="showInfo('laptop')" aria-label="Laptop"></button>
+        <button class="tap-zone storage-zone" onclick="showInfo('storage')" aria-label="Network storage"></button>
+        <button class="tap-zone switch-zone" onclick="showInfo('switch')" aria-label="Central switch"></button>
+
+      </div>
+
+      <p class="tap-hint">
+        Tap the switch, server, desktop, printer, laptops, phone, tablet and network storage to explore the STAR topology.
+      </p>
+
+      <div id="infoBox" class="info-box"></div>
+
+      <button class="btn" onclick="toggle('whatIsStar')">Show: What is a STAR Topology?</button>
+      <div id="whatIsStar" class="section hidden">
+        <h2>What is a STAR Topology?</h2>
+        <p>
+          A star topology connects each device back to a central device, usually a switch.
+        </p>
+        <p>
+          Each device has its own connection to the centre. If one end device or cable fails,
+          the rest of the network can usually continue working. However, if the central switch fails,
+          the connected devices may lose network access.
+        </p>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('benefits')">Show: Benefits</button>
+      <div id="benefits" class="section hidden">
+        <h2>Benefits of a STAR Topology</h2>
+        <ul>
+          <li>Easy to add or remove devices.</li>
+          <li>A fault with one end device usually does not stop the rest of the network.</li>
+          <li>Fault finding can be easier because devices have individual links to the centre.</li>
+          <li>Common in modern LANs using switches.</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('limitations')">Show: Limitations</button>
+      <div id="limitations" class="section hidden">
+        <h2>Limitations of a STAR Topology</h2>
+        <ul>
+          <li>The central switch is a critical point of failure.</li>
+          <li>Requires more cabling than some older/simple layouts.</li>
+          <li>Performance depends on the capacity and configuration of the central device.</li>
+          <li>Poor patching or poor cable management can make the network harder to maintain.</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('rafExample')">Show: RAF/AES Example</button>
+      <div id="rafExample" class="section hidden">
+        <h2>RAF/AES Example</h2>
+        <p>
+          In a training building, classrooms, offices, printers and other devices may all connect back
+          to switches located in a cabinet or network room.
+        </p>
+        <p>
+          For Communication Infrastructure Technicians, this is important because correct cabling,
+          patching, labelling and switch connectivity help keep the network reliable and maintainable.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Quick Check 1</h2>
+        <p><strong>Question:</strong> In a star topology, what is normally at the centre?</p>
+
+        <button class="btn btn-answer" onclick="answerQuestion(1, false)">Printer</button>
+        <button class="btn btn-answer" onclick="answerQuestion(1, true)">Switch</button>
+        <button class="btn btn-answer" onclick="answerQuestion(1, false)">Laptop</button>
+
+        <div id="correctAnswer1" class="answer correct">
+          ✅ Correct. A switch is commonly used as the central connection point in a star topology.
+        </div>
+
+        <div id="wrongAnswer1" class="answer wrong">
+          ❌ Not quite. In a star topology, devices normally connect back to a central switch.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Quick Check 2</h2>
+        <p><strong>Question:</strong> What is a major weakness of a star topology?</p>
+
+        <button class="btn btn-answer" onclick="answerQuestion(2, false)">It cannot use cables</button>
+        <button class="btn btn-answer" onclick="answerQuestion(2, false)">It only works across countries</button>
+        <button class="btn btn-answer" onclick="answerQuestion(2, true)">The central device is a critical point of failure</button>
+
+        <div id="correctAnswer2" class="answer correct">
+          ✅ Correct. If the central switch fails, connected devices may lose network access.
+        </div>
+
+        <div id="wrongAnswer2" class="answer wrong">
+          ❌ Not quite. The key weakness is that the central device is a critical point of failure.
+        </div>
+      </div>
+
+      <div id="lockedBox" class="locked-box">
+        🔒 Clue locked. Explore all STAR items and answer both quick-check questions.
+      </div>
+
+      <div id="clueBox" class="clue-box">
+        <h2 id="clueTitle">Next QR Clue Unlocked</h2>
+        <p id="clueText" class="clue-text"></p>
+      </div>
+
+      <button class="btn" onclick="completeMission()">Check Completion</button>
+
+      <button class="btn btn-dark" onclick="resetHuntProgress()">Reset Hunt Progress</button>
+
+      <p class="footer">
+        TP6 Networks | Complete all 9 QR tasks to finish the hunt.
+      </p>
+
+    </section>
+  </main>
+</body>
+</html>
