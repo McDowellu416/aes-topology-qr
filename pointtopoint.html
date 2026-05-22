@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>POINT TO POINT Topology Hunt</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #1e3a8a 0%, #020617 42%, #000000 100%);
+      color: white;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .page {
+      max-width: 590px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 34px rgba(56, 189, 248, 0.18);
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .top-label {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.15);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    .score-pill {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.14);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    h1 {
+      margin: 8px 0 14px;
+      color: #38bdf8;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+    }
+
+    .mission-box {
+      background: rgba(8, 47, 73, 0.8);
+      border: 1px solid rgba(125, 211, 252, 0.45);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+
+    .mission-box strong {
+      color: #7dd3fc;
+    }
+
+    .progress-wrap {
+      margin-top: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 14px;
+      background: linear-gradient(90deg, #22c55e, #38bdf8);
+      transition: width 0.3s ease;
+    }
+
+    .hunt-progress-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: #dbeafe;
+      line-height: 1.4;
+      font-size: 0.9rem;
+    }
+
+    .image-zone {
+      position: relative;
+      width: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: #020617;
+      margin-bottom: 12px;
+    }
+
+    .image-zone img {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .tap-hint {
+      font-size: 0.9rem;
+      color: #93c5fd;
+      margin: 8px 0 14px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .tap-zone {
+      position: absolute;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+    }
+
+    /*
+      To see tap zones while editing, change opacity from 0 to 0.25.
+    */
+    .tap-zone::after {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      background: rgba(34, 197, 94, 0.35);
+      border: 2px dashed rgba(255, 255, 255, 0.8);
+      opacity: 0.25;
+    }
+
+    .tap-zone:active::after {
+      opacity: 0.35;
+    }
+
+    /*
+      POINT TO POINT image tap zones.
+      These are based on the POINT TO POINT picture you uploaded.
+    */
+
+    .building-a-zone {
+      top: 44%;
+      left: 2%;
+      width: 27%;
+      height: 42%;
+    }
+
+    .building-b-zone {
+      top: 43%;
+      left: 73%;
+      width: 25%;
+      height: 43%;
+    }
+
+    .antenna-a-zone {
+      top: 24%;
+      left: 17%;
+      width: 16%;
+      height: 28%;
+    }
+
+    .antenna-b-zone {
+      top: 24%;
+      left: 68%;
+      width: 16%;
+      height: 28%;
+    }
+
+    .direct-link-zone {
+      top: 33%;
+      left: 25%;
+      width: 51%;
+      height: 10%;
+    }
+
+    .endpoint-a-zone {
+      top: 57%;
+      left: 2%;
+      width: 27%;
+      height: 20%;
+    }
+
+    .endpoint-b-zone {
+      top: 57%;
+      left: 74%;
+      width: 24%;
+      height: 24%;
+    }
+
+    .info-box {
+      display: none;
+      background: rgba(2, 6, 23, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 12px 0;
+      line-height: 1.45;
+    }
+
+    .info-box h3 {
+      margin-top: 0;
+      color: #7dd3fc;
+    }
+
+    .explored-tag {
+      color: #86efac;
+      font-weight: bold;
+    }
+
+    .section {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(30, 41, 59, 0.86);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      font-size: 1.15rem;
+      color: #bfdbfe;
+    }
+
+    .section p,
+    .section li {
+      color: #e2e8f0;
+      line-height: 1.45;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #052e16;
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.24);
+    }
+
+    .btn-blue {
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      color: white;
+    }
+
+    .btn-dark {
+      background: linear-gradient(135deg, #475569, #1e293b);
+      color: white;
+    }
+
+    .btn-answer {
+      background: linear-gradient(135deg, #334155, #1e293b);
+      color: white;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: none;
+    }
+
+    .btn-answer:hover {
+      background: linear-gradient(135deg, #475569, #334155);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .answer {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .correct {
+      background: rgba(34, 197, 94, 0.18);
+      border: 1px solid rgba(34, 197, 94, 0.55);
+      color: #86efac;
+    }
+
+    .wrong {
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.55);
+      color: #fca5a5;
+    }
+
+    .clue-box {
+      display: none;
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(22, 101, 52, 0.85), rgba(8, 47, 73, 0.9));
+      border: 1px solid rgba(134, 239, 172, 0.65);
+      box-shadow: 0 0 26px rgba(34, 197, 94, 0.18);
+    }
+
+    .clue-box h2 {
+      color: #bbf7d0;
+      margin-top: 0;
+    }
+
+    .clue-text {
+      font-size: 1.05rem;
+      color: white;
+      line-height: 1.5;
+      font-weight: bold;
+    }
+
+    .locked-box {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(69, 26, 3, 0.65);
+      border: 1px dashed rgba(251, 191, 36, 0.7);
+      color: #fde68a;
+      line-height: 1.4;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 18px;
+    }
+  </style>
+
+  <script>
+    /*
+      =============================
+      PAGE SETTINGS - POINT TO POINT
+      =============================
+    */
+
+    const topologyKey = "point-to-point";
+    const topologyName = "POINT TO POINT";
+    const nextTopologyName = "WAN";
+
+    /*
+      Location-based clue.
+      This does not rely on the student already knowing what WAN means.
+    */
+    const nextClue = "Next QR clue: Go wider. Find the classroom with the largest number.";
+
+    const finalClue = "Final checkpoint: You have completed all 9 network topologies. Return to the instructor and show your completed hunt progress.";
+
+    const allTopologies = [
+      "lan",
+      "star",
+      "bus",
+      "ring",
+      "mesh",
+      "point-to-point",
+      "wan",
+      "man",
+      "san"
+    ];
+
+    const requiredItems = [
+      "buildingA",
+      "buildingB",
+      "antennaA",
+      "antennaB",
+      "directLink",
+      "endpointA",
+      "endpointB"
+    ];
+
+    const exploredItems = new Set();
+
+    let questionOneComplete = false;
+    let questionTwoComplete = false;
+
+    /*
+      =============================
+      IMAGE TAP INFORMATION
+      =============================
+    */
+
+    function showInfo(type) {
+      const box = document.getElementById("infoBox");
+
+      let title = "";
+      let text = "";
+
+      if (type === "buildingA") {
+        title = "Building A";
+        text = "This is one end of the point-to-point link. A point-to-point connection joins two specific locations or devices directly.";
+      }
+
+      if (type === "buildingB") {
+        title = "Building B";
+        text = "This is the second end of the link. The communication path is focused between Building A and Building B.";
+      }
+
+      if (type === "antennaA") {
+        title = "Antenna / Dish at Building A";
+        text = "This antenna represents the equipment used to send and receive the signal from one end of the link.";
+      }
+
+      if (type === "antennaB") {
+        title = "Antenna / Dish at Building B";
+        text = "This antenna represents the equipment at the far end of the link. Both ends need to be aligned and configured correctly.";
+      }
+
+      if (type === "directLink") {
+        title = "Direct Communication Link";
+        text = "The key feature of a point-to-point topology is the direct link between two points. This may be a wireless link, fibre link, copper link or other dedicated connection.";
+      }
+
+      if (type === "endpointA") {
+        title = "Endpoint Equipment at Building A";
+        text = "The equipment at Building A provides access to the link for users or systems at this end of the connection.";
+      }
+
+      if (type === "endpointB") {
+        title = "Endpoint Equipment at Building B";
+        text = "The equipment at Building B receives and sends traffic across the point-to-point link to the other site.";
+      }
+
+      exploredItems.add(type);
+      updatePageProgress();
+
+      box.innerHTML =
+        "<h3>" + title + "</h3>" +
+        "<p>" + text + "</p>" +
+        "<p class='explored-tag'>Item explored ✅</p>";
+
+      box.style.display = "block";
+      box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    /*
+      =============================
+      PAGE PROGRESS
+      =============================
+    */
+
+    function updatePageProgress() {
+      const count = exploredItems.size;
+      const total = requiredItems.length;
+      const percentage = Math.round((count / total) * 100);
+
+      document.getElementById("exploreCount").innerText = count + "/" + total + " items explored";
+      document.getElementById("progressBar").style.width = percentage + "%";
+
+      checkUnlockStatus();
+    }
+
+    function toggle(id) {
+      const element = document.getElementById(id);
+      element.classList.toggle("hidden");
+    }
+
+    function answerQuestion(questionNumber, isCorrect) {
+      const correctBox = document.getElementById("correctAnswer" + questionNumber);
+      const wrongBox = document.getElementById("wrongAnswer" + questionNumber);
+
+      correctBox.style.display = "none";
+      wrongBox.style.display = "none";
+
+      if (isCorrect) {
+        correctBox.style.display = "block";
+
+        if (questionNumber === 1) {
+          questionOneComplete = true;
+        }
+
+        if (questionNumber === 2) {
+          questionTwoComplete = true;
+        }
+      } else {
+        wrongBox.style.display = "block";
+      }
+
+      checkUnlockStatus();
+    }
+
+    function checkUnlockStatus() {
+      const allItemsExplored = exploredItems.size >= requiredItems.length;
+      const allQuestionsComplete = questionOneComplete && questionTwoComplete;
+
+      if (allItemsExplored && allQuestionsComplete) {
+        markThisTopologyComplete();
+        unlockClue();
+      } else {
+        updateLockedMessage(allItemsExplored, allQuestionsComplete);
+      }
+    }
+
+    function updateLockedMessage(itemsDone, questionsDone) {
+      const locked = document.getElementById("lockedBox");
+
+      if (!itemsDone && !questionsDone) {
+        locked.innerHTML = "🔒 Clue locked. Explore all POINT TO POINT items and answer both quick-check questions.";
+      } else if (!itemsDone && questionsDone) {
+        locked.innerHTML = "🔒 Almost there. You answered the questions, now tap all required items in the POINT TO POINT diagram.";
+      } else if (itemsDone && !questionsDone) {
+        locked.innerHTML = "🔒 Almost there. You explored the POINT TO POINT diagram, now answer both quick-check questions.";
+      }
+    }
+
+    /*
+      =============================
+      FULL 9-TOPOLOGY HUNT TRACKER
+      =============================
+    */
+
+    function getCompletedTopologies() {
+      const saved = localStorage.getItem("completed_topologies");
+
+      if (!saved) {
+        return [];
+      }
+
+      try {
+        return JSON.parse(saved);
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveCompletedTopologies(list) {
+      localStorage.setItem("completed_topologies", JSON.stringify(list));
+    }
+
+    function markThisTopologyComplete() {
+      let completed = getCompletedTopologies();
+
+      if (!completed.includes(topologyKey)) {
+        completed.push(topologyKey);
+        saveCompletedTopologies(completed);
+      }
+
+      updateFullHuntProgress();
+    }
+
+    function updateFullHuntProgress() {
+      const completed = getCompletedTopologies();
+      const completedCount = completed.length;
+      const totalCount = allTopologies.length;
+
+      const remaining = allTopologies.filter(function (item) {
+        return !completed.includes(item);
+      });
+
+      let remainingText = "";
+
+      if (remaining.length === 0) {
+        remainingText = "All topologies completed.";
+      } else {
+        remainingText = "Still to complete: " + remaining.map(formatTopologyName).join(", ");
+      }
+
+      document.getElementById("fullHuntProgress").innerHTML =
+        "<strong>Full hunt progress:</strong> " +
+        completedCount + "/" + totalCount + " topologies complete.<br>" +
+        remainingText;
+    }
+
+    function formatTopologyName(key) {
+      if (key === "lan") return "LAN";
+      if (key === "star") return "STAR";
+      if (key === "bus") return "BUS";
+      if (key === "ring") return "RING";
+      if (key === "mesh") return "MESH";
+      if (key === "point-to-point") return "POINT-TO-POINT";
+      if (key === "wan") return "WAN";
+      if (key === "man") return "MAN";
+      if (key === "san") return "SAN";
+      return key.toUpperCase();
+    }
+
+    function allTopologiesComplete() {
+      const completed = getCompletedTopologies();
+
+      return allTopologies.every(function (item) {
+        return completed.includes(item);
+      });
+    }
+
+    function unlockClue() {
+      const clueBox = document.getElementById("clueBox");
+      const lockedBox = document.getElementById("lockedBox");
+
+      if (allTopologiesComplete()) {
+        document.getElementById("clueTitle").innerText = "Final Checkpoint Unlocked";
+        document.getElementById("clueText").innerText = finalClue;
+      } else {
+        document.getElementById("clueTitle").innerText = "Next QR Clue Unlocked";
+        document.getElementById("clueText").innerText = nextClue;
+      }
+
+      clueBox.style.display = "block";
+      lockedBox.style.display = "none";
+    }
+
+    function completeMission() {
+      const allItemsExplored = exploredItems.size >= requiredItems.length;
+      const allQuestionsComplete = questionOneComplete && questionTwoComplete;
+
+      if (allItemsExplored && allQuestionsComplete && allTopologiesComplete()) {
+        alert("✅ Full hunt complete. Return to the instructor.");
+      } else if (allItemsExplored && allQuestionsComplete) {
+        alert("✅ " + topologyName + " complete. Follow the clue to the next QR.");
+      } else {
+        alert("🔒 Not complete yet. Explore all items and answer both questions.");
+      }
+    }
+
+    function resetHuntProgress() {
+      const confirmReset = confirm("Reset this phone's hunt progress? Only use this before starting a fresh run.");
+
+      if (confirmReset) {
+        localStorage.removeItem("completed_topologies");
+        location.reload();
+      }
+    }
+
+    window.onload = function () {
+      updatePageProgress();
+      updateLockedMessage(false, false);
+      updateFullHuntProgress();
+    };
+  </script>
+</head>
+
+<body>
+  <main class="page">
+    <section class="card">
+
+      <div class="top-row">
+        <div class="top-label">NETWORK TOPOLOGY HUNT</div>
+        <div id="exploreCount" class="score-pill">0/7 items explored</div>
+      </div>
+
+      <h1>POINT TO POINT Topology</h1>
+
+      <div class="mission-box">
+        <strong>Mission:</strong>
+        Tap the items in the diagram, reveal the key information, answer both questions,
+        then unlock the clue to your next QR location.
+
+        <div class="progress-wrap">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <div id="fullHuntProgress" class="hunt-progress-box">
+          Full hunt progress loading...
+        </div>
+      </div>
+
+      <div class="image-zone">
+
+        <img src="pointtopoint.png" alt="POINT TO POINT topology diagram">
+
+        <button class="tap-zone building-a-zone" onclick="showInfo('buildingA')" aria-label="Building A"></button>
+        <button class="tap-zone building-b-zone" onclick="showInfo('buildingB')" aria-label="Building B"></button>
+        <button class="tap-zone antenna-a-zone" onclick="showInfo('antennaA')" aria-label="Antenna at Building A"></button>
+        <button class="tap-zone antenna-b-zone" onclick="showInfo('antennaB')" aria-label="Antenna at Building B"></button>
+        <button class="tap-zone direct-link-zone" onclick="showInfo('directLink')" aria-label="Direct communication link"></button>
+        <button class="tap-zone endpoint-a-zone" onclick="showInfo('endpointA')" aria-label="Endpoint equipment at Building A"></button>
+        <button class="tap-zone endpoint-b-zone" onclick="showInfo('endpointB')" aria-label="Endpoint equipment at Building B"></button>
+
+      </div>
+
+      <p class="tap-hint">
+        Tap Building A, Building B, both antennas, the direct link and endpoint equipment to explore the POINT TO POINT topology.
+      </p>
+
+      <div id="infoBox" class="info-box"></div>
+
+      <button class="btn" onclick="toggle('whatIsPointToPoint')">Show: What is a POINT TO POINT Topology?</button>
+      <div id="whatIsPointToPoint" class="section hidden">
+        <h2>What is a POINT TO POINT Topology?</h2>
+        <p>
+          A point-to-point topology is a direct connection between two points, such as two buildings, two devices or two sites.
+        </p>
+        <p>
+          It is commonly used where a dedicated link is needed between two specific locations. The link could be wireless,
+          fibre, copper or another communications medium.
+        </p>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('benefits')">Show: Benefits</button>
+      <div id="benefits" class="section hidden">
+        <h2>Benefits of POINT TO POINT</h2>
+        <ul>
+          <li>Simple and direct connection between two locations.</li>
+          <li>Can provide dedicated bandwidth for a specific link.</li>
+          <li>Useful for linking buildings, sites or equipment.</li>
+          <li>Can be easier to understand and manage than larger multi-node networks.</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('limitations')">Show: Limitations</button>
+      <div id="limitations" class="section hidden">
+        <h2>Limitations of POINT TO POINT</h2>
+        <ul>
+          <li>Only connects two points directly.</li>
+          <li>If the link fails, communication between those two points may be lost.</li>
+          <li>Wireless point-to-point links may require line of sight and careful alignment.</li>
+          <li>It is not as flexible as topologies that support many interconnected nodes.</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('rafExample')">Show: RAF/AES Example</button>
+      <div id="rafExample" class="section hidden">
+        <h2>RAF/AES Example</h2>
+        <p>
+          A point-to-point link could be used to connect two buildings or provide a dedicated communications path between sites.
+        </p>
+        <p>
+          For Communication Infrastructure Technicians, this links to cable route planning, antenna alignment, link testing,
+          fault finding and understanding how two endpoints communicate directly.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Quick Check 1</h2>
+        <p><strong>Question:</strong> What does a point-to-point topology connect?</p>
+
+        <button class="btn btn-answer" onclick="answerQuestion(1, false)">Every device to every other device</button>
+        <button class="btn btn-answer" onclick="answerQuestion(1, true)">Two specific points directly</button>
+        <button class="btn btn-answer" onclick="answerQuestion(1, false)">Only wireless phones</button>
+
+        <div id="correctAnswer1" class="answer correct">
+          ✅ Correct. A point-to-point topology connects two specific points directly.
+        </div>
+
+        <div id="wrongAnswer1" class="answer wrong">
+          ❌ Not quite. A point-to-point topology is a direct connection between two specific points.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Quick Check 2</h2>
+        <p><strong>Question:</strong> What is a possible weakness of a point-to-point link?</p>
+
+        <button class="btn btn-answer" onclick="answerQuestion(2, false)">It always has unlimited backup paths</button>
+        <button class="btn btn-answer" onclick="answerQuestion(2, false)">It cannot carry network traffic</button>
+        <button class="btn btn-answer" onclick="answerQuestion(2, true)">If the link fails, communication between the two points may be lost</button>
+
+        <div id="correctAnswer2" class="answer correct">
+          ✅ Correct. If the dedicated link fails, communication between those two points may be lost.
+        </div>
+
+        <div id="wrongAnswer2" class="answer wrong">
+          ❌ Not quite. The weakness is that the direct link can become a single point of failure.
+        </div>
+      </div>
+
+      <div id="lockedBox" class="locked-box">
+        🔒 Clue locked. Explore all POINT TO POINT items and answer both quick-check questions.
+      </div>
+
+      <div id="clueBox" class="clue-box">
+        <h2 id="clueTitle">Next QR Clue Unlocked</h2>
+        <p id="clueText" class="clue-text"></p>
+      </div>
+
+      <button class="btn" onclick="completeMission()">Check Completion</button>
+
+      <button class="btn btn-dark" onclick="resetHuntProgress()">Reset Hunt Progress</button>
+
+      <p class="footer">
+        TP6 Networks | Complete all 9 QR tasks to finish the hunt.
+      </p>
+
+    </section>
+  </main>
+</body>
+</html>
