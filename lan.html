@@ -24,15 +24,28 @@ body {
 }
 
 .viewer {
-    perspective: 1200px;
+    position: relative;
 }
 
 .viewer img {
     width: 100%;
     border-radius: 10px;
-    transform: rotateY(0deg) rotateX(0deg) scale(1);
-    transition: transform 0.1s;
 }
+
+/* 🔴 CLICK POINTS */
+.hotspot {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: red;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+/* adjust positions */
+.server { top: 50%; right: 5%; }
+.switch { top: 40%; left: 45%; }
+.desktop { top: 75%; left: 40%; }
 
 h1 { color: #38bdf8; }
 
@@ -62,29 +75,8 @@ function toggle(id) {
     el.classList.toggle("hidden");
 }
 
-function checkAnswer(correct) {
-    alert(correct ? "✅ Correct" : "❌ Try again");
-}
-
-function tilt(event) {
-    const img = document.getElementById("lanImg");
-
-    let x = event.touches ? event.touches[0].clientX : event.clientX;
-    let y = event.touches ? event.touches[0].clientY : event.clientY;
-
-    let rotateY = (x / window.innerWidth - 0.5) * 50;
-    let rotateX = (0.5 - y / window.innerHeight) * 50;
-
-    img.style.transform = `
-        rotateY(${rotateY}deg)
-        rotateX(${rotateX}deg)
-        scale(1.05)
-    `;
-}
-
-function resetTilt() {
-    document.getElementById("lanImg").style.transform =
-        "rotateY(0deg) rotateX(0deg) scale(1)";
+function popup(text) {
+    alert(text);
 }
 </script>
 
@@ -94,48 +86,44 @@ function resetTilt() {
 
 <div class="card">
 
-    <h1>LAN</h1>
+<h1>LAN</h1>
 
-    <!-- ✅ THIS IS THE FIX -->
-    <div class="viewer"
-         ontouchmove="tilt(event)"
-         onmousemove="tilt(event)"
-         ontouchend="resetTilt()"
-         onmouseleave="resetTilt()">
+<div class="viewer">
 
-        <img id="lanImg" src="lan.png" alt="LAN Diagram">
+    <img src="lan.png">
 
-    </div>
+    <!-- HOTSPOTS -->
+    <div class="hotspot server"
+         onclick="popup('Server stores and manages network data')"></div>
 
-    <p><strong>Description:</strong><br>
-    A Local Area Network connects devices within a limited area such as a building, office, or military site.
-    </p>
+    <div class="hotspot switch"
+         onclick="popup('Switch connects all devices in the LAN')"></div>
 
-    <button onclick="toggle('benefits')">Show Benefits</button>
-    <div id="benefits" class="section hidden">
-        <ul>
-            <li>High speed communication</li>
-            <li>Low latency</li>
-            <li>Centralised control</li>
-            <li>Secure environment</li>
-        </ul>
-    </div>
+    <div class="hotspot desktop"
+         onclick="popup('End-user device accessing the network')"></div>
 
-    <button onclick="toggle('drawbacks')">Show Drawbacks</button>
-    <div id="drawbacks" class="section hidden">
-        <ul>
-            <li>Limited geographic range</li>
-            <li>Infrastructure required</li>
-            <li>Dependent on internal equipment</li>
-        </ul>
-    </div>
+</div>
 
-    <div class="section">
-        <h3>🧠 Quick Check</h3>
-        <p>Where would a LAN most likely be used?</p>
-        <button onclick="checkAnswer(true)">Inside a single building</button>
-        <button onclick="checkAnswer(false)">Across continents</button>
-    </div>
+<p><strong>Description:</strong><br>
+A Local Area Network connects devices within a limited area such as a building or military site.
+</p>
+
+<button onclick="toggle('benefits')">Show Benefits</button>
+<div id="benefits" class="section hidden">
+<ul>
+<li>High speed</li>
+<li>Low latency</li>
+<li>Secure</li>
+</ul>
+</div>
+
+<button onclick="toggle('drawbacks')">Show Drawbacks</button>
+<div id="drawbacks" class="section hidden">
+<ul>
+<li>Limited range</li>
+<li>Needs infrastructure</li>
+</ul>
+</div>
 
 </div>
 
