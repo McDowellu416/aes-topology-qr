@@ -1,1 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <title>BUS Topology Hunt</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #1e3a8a 0%, #020617 42%, #000000 100%);
+      color: white;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .page {
+      max-width: 590px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 34px rgba(56, 189, 248, 0.18);
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .top-label {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.15);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    .score-pill {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.14);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    h1 {
+      margin: 8px 0 14px;
+      color: #38bdf8;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+
+    .mission-box {
+      background: rgba(8, 47, 73, 0.8);
+      border: 1px solid rgba(125, 211, 252, 0.45);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+
+    .mission-box strong {
+      color: #7dd3fc;
+    }
+
+    .progress-wrap {
+      margin-top: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 14px;
+      background: linear-gradient(90deg, #22c55e, #38bdf8);
+      transition: width 0.3s ease;
+    }
+
+    .hunt-progress-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: #dbeafe;
+      line-height: 1.4;
+      font-size: 0.9rem;
+    }
+
+    .image-zone {
+      position: relative;
+      width: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: #020617;
+      margin-bottom: 12px;
+    }
+
+    .image-zone img {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .tap-hint {
+      font-size: 0.9rem;
+      color: #93c5fd;
+      margin: 8px 0 14px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .tap-zone {
+      position: absolute;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+    }
+
+    /*
+      To see tap zones while editing, change opacity from 0 to 0.25.
+    */
+    .tap-zone::after {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      background: rgba(34, 197, 94, 0.35);
+      border: 2px dashed rgba(255, 255, 255, 0.8);
+      opacity: 0;
+    }
+
+    .tap-zone:active::after {
+      opacity: 0.35;
+    }
+
+    /*
+      BUS image tap zones.
+      These are based on the BUS picture you uploaded.
+    */
+
+    .desktop-top-zone {
+      top: 14%;
+      left: 13%;
+      width: 24%;
+      height: 24%;
+    }
+
+    .laptop-top-zone {
+      top: 15%;
+      left: 43%;
+      width: 18%;
+      height: 21%;
+    }
+
+    .printer-zone {
+      top: 15%;
+      left: 73%;
+      width: 19%;
+      height: 22%;
+    }
+
+    .backbone-zone {
+      top: 39%;
+      left: 4%;
+      width: 92%;
+      height: 12%;
+    }
+
+    .laptop-bottom-zone {
+      top: 59%;
+      left: 10%;
+      width: 21%;
+      height: 25%;
+    }
+
+    .server-zone {
+      top: 57%;
+      left: 35%;
+      width: 20%;
+      height: 29%;
+    }
+
+    .desktop-bottom-zone {
+      top: 56%;
+      left: 55%;
+      width: 20%;
+      height: 28%;
+    }
+
+    .storage-zone {
+      top: 57%;
+      left: 78%;
+      width: 19%;
+      height: 28%;
+    }
+
+    .info-box {
+      display: none;
+      background: rgba(2, 6, 23, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 12px 0;
+      line-height: 1.45;
+    }
+
+    .info-box h3 {
+      margin-top: 0;
+      color: #7dd3fc;
+    }
+
+    .explored-tag {
+      color: #86efac;
+      font-weight: bold;
+    }
+
+    .section {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(30, 41, 59, 0.86);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      font-size: 1.15rem;
+      color: #bfdbfe;
+    }
+
+    .section p,
+    .section li {
+      color: #e2e8f0;
+      line-height: 1.45;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #052e16;
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.24);
+    }
+
+    .btn-blue {
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      color: white;
+    }
+
+    .btn-dark {
+      background: linear-gradient(135deg, #475569, #1e293b);
+      color: white;
+    }
+
+    .btn-answer {
+      background: linear-gradient(135deg, #334155, #1e293b);
+      color: white;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: none;
+    }
+
+    .btn-answer:hover {
+      background: linear-gradient(135deg, #475569, #334155);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .answer {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .correct {
+      background: rgba(34, 197, 94, 0.18);
+      border: 1px solid rgba(34, 197, 94, 0.55);
+      color: #86efac;
+    }
+
+    .wrong {
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.55);
+      color: #fca5a5;
+    }
+
+    .clue-box {
+      display: none;
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(22, 101, 52, 0.85), rgba(8, 47, 73, 0.9));
+      border: 1px solid rgba(134, 239, 172, 0.65);
+      box-shadow: 0 0 26px rgba(34, 197, 94, 0.18);
+    }
+
+    .clue-box h2 {
+      color: #bbf7d0;
+      margin-top: 0;
+    }
+
+    .clue-text {
+      font-size: 1.05rem;
+      color: white;
+      line-height: 1.5;
+      font-weight: bold;
+    }
+
+    .locked-box {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(69, 26, 3, 0.65);
+      border: 1px dashed rgba(251, 191, 36, 0.7);
+      color: #fde68a;
+      line-height: 1.4;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 18px;
+    }
+  </style>
+
+  <script>
+    /*
+      =============================
+      PAGE SETTINGS - BUS
+      =============================
+    */
+
+    const topologyKey = "bus";
+    const topologyName = "BUS";
+    const nextTopologyName = "RING";
+
+    /*
+      Location-based clue.
+      This does not rely on the student already knowing what RING means.
+    */
+    const nextClue = "Next QR clue: Find the student area where circles and aim matter. Look near the dartboard.";
+
+    const finalClue = "Final checkpoint: You have completed all 9 network topologies. Return to the instructor and show your completed hunt progress.";
+
+    const allTopologies = [
+      "lan",
+      "star",
+      "bus",
+      "ring",
+      "mesh",
+      "point-to-point",
+      "wan",
+      "man",
+      "san"
+    ];
+
+    const requiredItems = [
+      "backbone",
+      "desktop",
+      "laptop",
+      "printer",
+      "server",
+      "storage"
+    ];
+
+    const exploredItems = new Set();
+
+    let questionOneComplete = false;
+    let questionTwoComplete = false;
+
+    /*
+      =============================
+      IMAGE TAP INFORMATION
+      =============================
+    */
+
+    function showInfo(type) {
+      const box = document.getElementById("infoBox");
+
+      let title = "";
+      let text = "";
+
+      if (type === "backbone") {
+        title = "Main Bus / Backbone Cable";
+        text = "In a bus topology, devices connect to a single main communication line called the bus or backbone. Data travels along this shared path.";
+      }
+
+      if (type === "desktop") {
+        title = "Desktop Computer";
+        text = "A desktop is an end device connected to the shared bus. It uses the same main communication path as the other devices.";
+      }
+
+      if (type === "laptop") {
+        title = "Laptop";
+        text = "A laptop is another end device on the bus. In this layout, it connects into the same shared communication line.";
+      }
+
+      if (type === "printer") {
+        title = "Printer";
+        text = "A printer can be placed on the network so users can print to it. In a bus topology, it shares the same main network path.";
+      }
+
+      if (type === "server") {
+        title = "Server";
+        text = "A server provides shared services such as files, applications or authentication. In a bus topology, it connects to the common backbone.";
+      }
+
+      if (type === "storage") {
+        title = "Network Storage";
+        text = "Network storage provides shared storage space. In this diagram, it is connected to the shared bus alongside the other devices.";
+      }
+
+      exploredItems.add(type);
+      updatePageProgress();
+
+      box.innerHTML =
+        "<h3>" + title + "</h3>" +
+        "<p>" + text + "</p>" +
+        "<p class='explored-tag'>Item explored ✅</p>";
+
+      box.style.display = "block";
+      box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    /*
+      =============================
+      PAGE PROGRESS
+      =============================
+    */
+
+    function updatePageProgress() {
+      const count = exploredItems.size;
+      const total = requiredItems.length;
+      const percentage = Math.round((count / total) * 100);
+
+      document.getElementById("exploreCount").innerText = count + "/" + total + " items explored";
+      document.getElementById("progressBar").style.width = percentage + "%";
+
+      checkUnlockStatus();
+    }
+
+    function toggle(id) {
+      const element = document.getElementById(id);
+      element.classList.toggle("hidden");
+    }
+
+    function answerQuestion(questionNumber, isCorrect) {
+      const correctBox = document.getElementById("correctAnswer" + questionNumber);
+      const wrongBox = document.getElementById("wrongAnswer" + questionNumber);
+
+      correctBox.style.display = "none";
+      wrongBox.style.display = "none";
+
+      if (isCorrect) {
+        correctBox.style.display = "block";
+
+        if (questionNumber === 1) {
+          questionOneComplete = true;
+        }
+
+        if (questionNumber === 2) {
+          questionTwoComplete = true;
+        }
+      } else {
+        wrongBox.style.display = "block";
+      }
+
+      checkUnlockStatus();
+    }
+
+    function checkUnlockStatus() {
+      const allItemsExplored = exploredItems.size >= requiredItems.length;
+      const allQuestionsComplete = questionOneComplete && questionTwoComplete;
+
+      if (allItemsExplored && allQuestionsComplete) {
+        markThisTopologyComplete();
+        unlockClue();
+      } else {
+        updateLockedMessage(allItemsExplored, allQuestionsComplete);
+      }
+    }
+
+    function updateLockedMessage(itemsDone, questionsDone) {
+      const locked = document.getElementById("lockedBox");
+
+      if (!itemsDone && !questionsDone) {
+        locked.innerHTML = "🔒 Clue locked. Explore all BUS items and answer both quick-check questions.";
+      } else if (!itemsDone && questionsDone) {
+        locked.innerHTML = "🔒 Almost there. You answered the questions, now tap all required items in the BUS diagram.";
+      } else if (itemsDone && !questionsDone) {
+        locked.innerHTML = "🔒 Almost there. You explored the BUS diagram, now answer both quick-check questions.";
+      }
+    }
+
+    /*
+      =============================
+      FULL 9-TOPOLOGY HUNT TRACKER
+      =============================
+    */
+
+    function getCompletedTopologies() {
+      const saved = localStorage.getItem("completed_topologies");
+
+      if (!saved) {
+        return [];
+      }
+
+      try {
+        return JSON.parse(saved);
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveCompletedTopologies(list) {
+      localStorage.setItem("completed_topologies", JSON.stringify(list));
+    }
+
+    function markThisTopologyComplete() {
+      let completed = getCompletedTopologies();
+
+      if (!completed.includes(topologyKey)) {
+        completed.push(topologyKey);
+        saveCompletedTopologies(completed);
+      }
+
+      updateFullHuntProgress();
+    }
+
+    function updateFullHuntProgress() {
+      const completed = getCompletedTopologies();
+      const completedCount = completed.length;
+      const totalCount = allTopologies.length;
+
+      const remaining = allTopologies.filter(function (item) {
+        return !completed.includes(item);
+      });
+
+      let remainingText = "";
+
+      if (remaining.length === 0) {
+        remainingText = "All topologies completed.";
+      } else {
+        remainingText = "Still to complete: " + remaining.map(formatTopologyName).join(", ");
+      }
+
+      document.getElementById("fullHuntProgress").innerHTML =
+        "<strong>Full hunt progress:</strong> " +
+        completedCount + "/" + totalCount + " topologies complete.<br>" +
+        remainingText;
+    }
+
+    function formatTopologyName(key) {
+      if (key === "lan") return "LAN";
+      if (key === "star") return "STAR";
+      if (key === "bus") return "BUS";
+      if (key === "ring") return "RING";
+      if (key === "mesh") return "MESH";
+      if (key === "point-to-point") return "POINT-TO-POINT";
+      if (key === "wan") return "WAN";
+      if (key === "man") return "MAN";
+      if (key === "san") return "SAN";
+      return key.toUpperCase();
+    }
+
+    function allTopologiesComplete() {
+      const completed = getCompletedTopologies();
+
+      return allTopologies.every(function (item) {
+        return completed.includes(item);
+      });
+    }
+
+    function unlockClue() {
+      const clueBox = document.getElementById("clueBox");
+      const lockedBox = document.getElementById("lockedBox");
+
+      if (allTopologiesComplete()) {
+        document.getElementById("clueTitle").innerText = "Final Checkpoint Unlocked";
+        document.getElementById("clueText").innerText = finalClue;
+      } else {
+        document.getElementById("clueTitle").innerText = "Next QR Clue Unlocked";
+        document.getElementById("clueText").innerText = nextClue;
+      }
+
+      clueBox.style.display = "block";
+      lockedBox.style.display = "none";
+    }
+
+    function completeMission() {
+      const allItemsExplored = exploredItems.size >= requiredItems.length;
+      const allQuestionsComplete = questionOneComplete && questionTwoComplete;
+
+      if (allItemsExplored && allQuestionsComplete && allTopologiesComplete()) {
+        alert("✅ Full hunt complete. Return to the instructor.");
+      } else if (allItemsExplored && allQuestionsComplete) {
+        alert("✅ " + topologyName + " complete. Follow the clue to the next QR.");
+      } else {
+        alert("🔒 Not complete yet. Explore all items and answer both questions.");
+      }
+    }
+
+    function resetHuntProgress() {
+      const confirmReset = confirm("Reset this phone's hunt progress? Only use this before starting a fresh run.");
+
+      if (confirmReset) {
+        localStorage.removeItem("completed_topologies");
+        location.reload();
+      }
+    }
+
+    window.onload = function () {
+      updatePageProgress();
+      updateLockedMessage(false, false);
+      updateFullHuntProgress();
+    };
+  </script>
+</head>
+
+<body>
+  <main class="page">
+    <section class="card">
+
+      <div class="top-row">
+        <div class="top-label">NETWORK TOPOLOGY HUNT</div>
+        <div id="exploreCount" class="score-pill">0/6 items explored</div>
+      </div>
+
+      <h1>BUS Topology</h1>
+
+      <div class="mission-box">
+        <strong>Mission:</strong>
+        Tap the items in the diagram, reveal the key information, answer both questions,
+        then unlock the clue to your next QR location.
+
+        <div class="progress-wrap">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <div id="fullHuntProgress" class="hunt-progress-box">
+          Full hunt progress loading...
+        </div>
+      </div>
+
+      <div class="image-zone">
+
+        <img src="bus.png" alt="BUS topology diagram">
+
+        <button class="tap-zone desktop-top-zone" onclick="showInfo('desktop')" aria-label="Desktop computer"></button>
+        <button class="tap-zone laptop-top-zone" onclick="showInfo('laptop')" aria-label="Laptop"></button>
+        <button class="tap-zone printer-zone" onclick="showInfo('printer')" aria-label="Printer"></button>
+        <button class="tap-zone backbone-zone" onclick="showInfo('backbone')" aria-label="Main bus backbone"></button>
+        <button class="tap-zone laptop-bottom-zone" onclick="showInfo('laptop')" aria-label="Laptop"></button>
+        <button class="tap-zone server-zone" onclick="showInfo('server')" aria-label="Server"></button>
+        <button class="tap-zone desktop-bottom-zone" onclick="showInfo('desktop')" aria-label="Desktop computer"></button>
+        <button class="tap-zone storage-zone" onclick="showInfo('storage')" aria-label="Network storage"></button>
+
+      </div>
+
+      <p class="tap-hint">
+        Tap the main bus line, desktop, laptop, printer, server and network storage to explore the BUS topology.
+      </p>
+
+      <div id="infoBox" class="info-box"></div>
+
+      <button class="btn" onclick="toggle('whatIsBus')">Show: What is a BUS Topology?</button>
+      <div id="whatIsBus" class="section hidden">
+        <h2>What is a BUS Topology?</h2>
+        <p>
+          A bus topology connects devices to one main communication line, often called the bus or backbone.
+        </p>
+        <p>
+          Data travels along this shared path, and devices receive the traffic that passes along the line.
+          Older Ethernet networks commonly used this type of layout.
+        </p>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('benefits')">Show: Benefits</button>
+      <div id="benefits" class="section hidden">
+        <h2>Benefits of a BUS Topology</h2>
+        <ul>
+          <li>Simple layout and easy to understand.</li>
+          <li>Can use less cable than some other topologies.</li>
+          <li>Can be suitable for small or temporary networks.</li>
+          <li>Devices connect into one shared communication path.</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('limitations')">Show: Limitations</button>
+      <div id="limitations" class="section hidden">
+        <h2>Limitations of a BUS Topology</h2>
+        <ul>
+          <li>If the main backbone fails, the network can be badly affected.</li>
+          <li>Performance can reduce as more devices are added.</li>
+          <li>Fault finding can be more difficult than with a star topology.</li>
+          <li>Older bus networks could suffer from collisions on the shared medium.</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('rafExample')">Show: RAF/AES Example</button>
+      <div id="rafExample" class="section hidden">
+        <h2>RAF/AES Example</h2>
+        <p>
+          A bus topology is useful for understanding older network designs and the idea of a shared transmission path.
+        </p>
+        <p>
+          For Communication Infrastructure Technicians, it helps explain why modern networks normally favour switched
+          star layouts, where individual cable runs and central patching make fault finding and management easier.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Quick Check 1</h2>
+        <p><strong>Question:</strong> What is the main shared line in a bus topology often called?</p>
+
+        <button class="btn btn-answer" onclick="answerQuestion(1, false)">Wireless access point</button>
+        <button class="btn btn-answer" onclick="answerQuestion(1, true)">Backbone or bus</button>
+        <button class="btn btn-answer" onclick="answerQuestion(1, false)">Patch panel only</button>
+
+        <div id="correctAnswer1" class="answer correct">
+          ✅ Correct. The main shared line is often called the backbone or bus.
+        </div>
+
+        <div id="wrongAnswer1" class="answer wrong">
+          ❌ Not quite. In a bus topology, the shared line is normally called the backbone or bus.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Quick Check 2</h2>
+        <p><strong>Question:</strong> What is a major weakness of a bus topology?</p>
+
+        <button class="btn btn-answer" onclick="answerQuestion(2, false)">Every device needs its own switch</button>
+        <button class="btn btn-answer" onclick="answerQuestion(2, false)">It only works inside server rooms</button>
+        <button class="btn btn-answer" onclick="answerQuestion(2, true)">A failure on the main backbone can affect the network</button>
+
+        <div id="correctAnswer2" class="answer correct">
+          ✅ Correct. If the main backbone fails, the network can be disrupted.
+        </div>
+
+        <div id="wrongAnswer2" class="answer wrong">
+          ❌ Not quite. The key weakness is that the main shared backbone is a critical part of the network.
+        </div>
+      </div>
+
+      <div id="lockedBox" class="locked-box">
+        🔒 Clue locked. Explore all BUS items and answer both quick-check questions.
+      </div>
+
+      <div id="clueBox" class="clue-box">
+        <h2 id="clueTitle">Next QR Clue Unlocked</h2>
+        <p id="clueText" class="clue-text"></p>
+      </div>
+
+      <button class="btn" onclick="completeMission()">Check Completion</button>
+
+      <button class="btn btn-dark" onclick="resetHuntProgress()">Reset Hunt Progress</button>
+
+      <p class="footer">
+        TP6 Networks | Complete all 9 QR tasks to finish the hunt.
+      </p>
+
+    </section>
+  </main>
+</body>
+</html>
