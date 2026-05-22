@@ -1,1 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Webb Starter QR</title>
 
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #1e3a8a 0%, #020617 42%, #000000 100%);
+      color: white;
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      max-width: 560px;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 0 34px rgba(56, 189, 248, 0.18);
+      text-align: center;
+    }
+    .top-label {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.15);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+    h1 { color: #38bdf8; font-size: 2rem; margin: 8px 0 10px; }
+    .subtitle { color: #cbd5e1; line-height: 1.5; margin-bottom: 18px; }
+    .mission-box {
+      background: rgba(8, 47, 73, 0.8);
+      border: 1px solid rgba(125, 211, 252, 0.45);
+      border-radius: 18px;
+      padding: 16px;
+      margin: 16px 0;
+      text-align: left;
+      line-height: 1.5;
+    }
+    .mission-box strong { color: #7dd3fc; }
+    .clue-box {
+      background: linear-gradient(135deg, rgba(22, 101, 52, 0.85), rgba(8, 47, 73, 0.9));
+      border: 1px solid rgba(134, 239, 172, 0.65);
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 16px;
+      text-align: left;
+      box-shadow: 0 0 26px rgba(34, 197, 94, 0.18);
+    }
+    .clue-box h2 { margin-top: 0; color: #bbf7d0; }
+    .clue-text {
+      font-size: 1.08rem;
+      line-height: 1.5;
+      font-weight: bold;
+      color: white;
+    }
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-top: 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #052e16;
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.24);
+    }
+    .btn-dark {
+      background: linear-gradient(135deg, #475569, #1e293b);
+      color: white;
+    }
+    .footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 18px;
+      line-height: 1.4;
+    }
+  </style>
+
+  <script>
+    function startHunt() {
+      alert("Starter clue received. Find the first QR, scan it, complete the task, then follow the next clue.");
+    }
+
+    function resetHuntProgress() {
+      const confirmReset = confirm("Reset this phone's hunt progress before starting? Use this if this phone has been used for testing.");
+      if (confirmReset) {
+        localStorage.removeItem("completed_topologies");
+        alert("Hunt progress reset. You are ready to start.");
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <main class="card">
+    <div class="top-label">NETWORK TOPOLOGY HUNT</div>
+
+    <h1>AR Webb</h1>
+
+    <p class="subtitle">
+      Welcome to the Network Topology Hunt. You will complete all 9 QR tasks,
+      but your starting point is different from the others.
+    </p>
+
+    <div class="mission-box">
+      <strong>Your mission:</strong><br>
+      Find your first topology QR, scan it, explore the diagram, answer the questions,
+      then unlock the next clue. Keep using the same phone and browser throughout the hunt.
+    </div>
+
+    <div class="clue-box">
+      <h2>Starter Clue</h2>
+      <p class="clue-text">
+        Your first QR is hiding where people stop, refuel and gather around one shared space.
+        Look carefully around the T-Bar area.
+      </p>
+    </div>
+
+    <button class="btn" onclick="startHunt()">I Understand — Start Hunt</button>
+    <button class="btn btn-dark" onclick="resetHuntProgress()">Reset Hunt Progress</button>
+
+    <p class="footer">
+      First target: BUS QR<br>
+      Complete the task, unlock the next clue, and keep moving.
+    </p>
+  </main>
+</body>
+</html>
