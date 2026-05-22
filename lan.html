@@ -23,13 +23,20 @@ body {
     padding: 20px;
 }
 
-h1 { color: #38bdf8; }
-
-img {
-    width: 100%;
-    border-radius: 10px;
+/* 3D effect container */
+.viewer {
+    perspective: 1000px;
     margin-bottom: 15px;
 }
+
+.viewer img {
+    width: 100%;
+    border-radius: 10px;
+    transform: rotateY(0deg) rotateX(0deg);
+    transition: transform 0.2s;
+}
+
+h1 { color: #38bdf8; }
 
 .section {
     text-align: left;
@@ -64,6 +71,22 @@ function checkAnswer(correct) {
         alert("❌ Try again")
     }
 }
+
+// 3D tilt effect
+function tilt(event) {
+    const img = document.getElementById("lanImg");
+    let x = event.touches ? event.touches[0].clientX : event.clientX;
+    let y = event.touches ? event.touches[0].clientY : event.clientY;
+
+    let rotateY = (x / window.innerWidth - 0.5) * 20;
+    let rotateX = (0.5 - y / window.innerHeight) * 20;
+
+    img.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+}
+
+function resetTilt() {
+    document.getElementById("lanImg").style.transform = "rotateY(0deg) rotateX(0deg)";
+}
 </script>
 
 </head>
@@ -74,8 +97,15 @@ function checkAnswer(correct) {
 
     <h1>LAN</h1>
 
-    <!-- ✅ THIS IS THE FIX -->
-    <img src="lan.png" alt="LAN Diagram">
+    <!-- ✅ INTERACTIVE IMAGE -->
+    <div class="viewer"
+         ontouchmove="tilt(event)"
+         onmousemove="tilt(event)"
+         ontouchend="resetTilt()"
+         onmouseleave="resetTilt()">
+
+        <img src="lan.png" id="lanImg">
+    </div>
 
     <p><strong>Description:</strong><br>
     A Local Area Network connects devices within a limited area such as a building, office, or military site.
@@ -111,4 +141,3 @@ function checkAnswer(correct) {
 
 </body>
 </html>
-``
