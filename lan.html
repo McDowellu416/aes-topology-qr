@@ -1,157 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>LAN</title>
+  <title>LAN Topology</title>
 
-<style>
-body {
-    font-family: Arial;
-    background: #020617;
-    color: white;
-    text-align: center;
-    padding: 15px;
-}
-
-.card {
-    max-width: 450px;
-    margin: auto;
-    background: #0f172a;
-    border-radius: 15px;
-    padding: 20px;
-}
-
-.viewer {
-    position: relative;
-}
-
-.viewer img {
-    width: 100%;
-    border-radius: 10px;
-}
-
-/* Invisible clickable areas */
-.zone {
-    position: absolute;
-}
-
-/* Adjust positions if needed */
-.server { top: 50%; right: 5%; width: 25%; height: 30%; }
-.switch { top: 35%; left: 35%; width: 30%; height: 20%; }
-.desktop { top: 70%; left: 30%; width: 35%; height: 25%; }
-
-/* Info box */
-.infoBox {
-    display: none;
-    background: #1e293b;
-    padding: 10px;
-    border-radius: 10px;
-    margin-top: 10px;
-    text-align: left;
-}
-
-/* Section styling */
-.section {
-    text-align: left;
-    margin-top: 15px;
-}
-
-h1 { color: #38bdf8; }
-
-.complete {
-    display: none;
-    margin-top: 15px;
-    color: lime;
-    font-weight: bold;
-}
-</style>
-
-<script>
-// Track progress
-let found = {
-    server: false,
-    switch: false,
-    desktop: false
-};
-
-function toggleInfo(id, key) {
-    let el = document.getElementById(id);
-
-    el.style.display = (el.style.display === "block") ? "none" : "block";
-
-    found[key] = true;
-
-    if (found.server && found.switch && found.desktop) {
-        document.getElementById("complete").style.display = "block";
+  <style>
+    * {
+      box-sizing: border-box;
     }
-}
-</script>
 
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #1e3a8a 0%, #020617 45%, #000000 100%);
+      color: white;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .page {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.18);
+    }
+
+    .top-label {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.15);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 4px 0 8px;
+      color: #38bdf8;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      color: #cbd5e1;
+      line-height: 1.45;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+
+    .image-zone {
+      position: relative;
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: #020617;
+      margin-bottom: 12px;
+    }
+
+    .image-zone img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .tap-hint {
+      font-size: 0.85rem;
+      color: #93c5fd;
+      margin: 8px 0 14px;
+      text-align: center;
+    }
+
+    .hotspot {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid white;
+      background: rgba(34, 197, 94, 0.85);
+      color: #052e16;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.9);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.12);
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    .info-box {
+      display: none;
+      background: rgba(2, 6, 23, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 12px 0;
+      line-height: 1.45;
+    }
+
+    .info-box h3 {
+      margin-top: 0;
+      color: #7dd3fc;
+    }
+
+    .section {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      font-size: 1.15rem;
+      color: #bfdbfe;
+    }
+
+    .section p,
+    .section li {
+      color: #e2e8f0;
+      line-height: 1.45;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #052e16;
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.25);
+    }
+
+    .btn-blue {
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      color: white;
+    }
+
+    .btn-orange {
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: #111827;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .answer {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .correct {
+      background: rgba(34, 197, 94, 0.18);
+      border: 1px solid rgba(34, 197, 94, 0.55);
+      color: #86efac;
+    }
+
+    .wrong {
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.55);
+      color: #fca5a5;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 18px;
+    }
+
+    .ar-box {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(8, 47, 73, 0.75);
+      border: 1px dashed rgba(125, 211, 252, 0.6);
+    }
+
+    .ar-box h2 {
+      color: #7dd3fc;
+      margin-top: 0;
+    }
+
+    .mini-note {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+  </style>
+
+  <script>
+    function showInfo(type) {
+      const box = document.getElementById("infoBox");
+
+      let title = "";
+      let text = "";
+
+      if (type === "device") {
+        title = "End Device";
+        text = "This could be a laptop, desktop, printer or other user device connected to the Local Area Network.";
+      }
+
+      if (type === "switch") {
+        title = "Switch";
+        text = "The switch is the central device that connects multiple devices inside the LAN and forwards traffic to the correct destination.";
+      }
+
+      if (type === "server") {
+        title = "Server";
+        text = "A server provides shared services such as files, applications, authentication, storage or printing.";
+      }
+
+      if (type === "router") {
+        title = "Router";
+        text = "A router connects the LAN to other networks, such as a WAN or the internet.";
+      }
+
+      box.innerHTML = "<h3>" + title + "</h3><p>" + text + "</p>";
+      box.style.display = "block";
+      box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function toggle(id) {
+      const element = document.getElementById(id);
+      element.classList.toggle("hidden");
+    }
+
+    function checkAnswer(isCorrect) {
+      const correct = document.getElementById("correctAnswer");
+      const wrong = document.getElementById("wrongAnswer");
+
+      correct.style.display = "none";
+      wrong.style.display = "none";
+
+      if (isCorrect) {
+        correct.style.display = "block";
+      } else {
+        wrong.style.display = "block";
+      }
+    }
+
+    function completeMission() {
+      alert("✅ LAN Topology Complete. Move to the next QR code.");
+    }
+  </script>
 </head>
 
 <body>
+  <main class="page">
+    <section class="card">
 
-<div class="card">
+      <div class="top-label">NETWORK TOPOLOGY TASK</div>
 
-<h1>LAN</h1>
+      <h1>LAN Topology</h1>
 
-<!-- ✅ MISSION -->
-<p><strong>Mission:</strong><br>
-Identify key components within this network. Tap each device and understand its role.
-</p>
+      <p class="subtitle">
+        A Local Area Network connects devices within a limited area, such as a room,
+        building, office, school or military site.
+      </p>
 
-<!-- ✅ INTERACTIVE IMAGE -->
-<div class="viewer">
+      <div class="image-zone">
 
-    <img src="lan.png" alt="LAN Diagram">
+        <!-- 
+          IMPORTANT:
+          Make sure your image file is uploaded in the same place as this HTML file
+          and is called exactly: lan.png
+        -->
+        <img src="lan.png" alt="LAN topology diagram">
 
-    <div class="zone server" onclick="toggleInfo('serverInfo','server')"></div>
-    <div class="zone switch" onclick="toggleInfo('switchInfo','switch')"></div>
-    <div class="zone desktop" onclick="toggleInfo('desktopInfo','desktop')"></div>
+        <!-- 
+          HOTSPOTS:
+          These are positioned using percentages.
+          You can move them by changing top and left values.
+        -->
 
-</div>
+        <button class="hotspot" style="top: 72%; left: 20%;" onclick="showInfo('device')">1</button>
+        <button class="hotspot" style="top: 52%; left: 50%;" onclick="showInfo('switch')">2</button>
+        <button class="hotspot" style="top: 24%; left: 78%;" onclick="showInfo('server')">3</button>
+        <button class="hotspot" style="top: 26%; left: 28%;" onclick="showInfo('router')">4</button>
 
-<!-- ✅ TASK LIST -->
-<div class="section">
-<h3>✅ Tasks</h3>
-<ul>
-<li>Find the switch</li>
-<li>Identify what the server does</li>
-<li>Understand end devices</li>
-</ul>
-</div>
+      </div>
 
-<!-- ✅ INFO BOXES -->
-<div id="serverInfo" class="infoBox">
-<b>Server:</b> Stores and manages network data, services, and users.
-</div>
+      <p class="tap-hint">
+        Tap the numbered points on the diagram to reveal key parts of the LAN.
+      </p>
 
-<div id="switchInfo" class="infoBox">
-<b>Switch:</b> Connects devices and directs traffic efficiently within the LAN.
-</div>
+      <div id="infoBox" class="info-box"></div>
 
-<div id="desktopInfo" class="infoBox">
-<b>End Devices:</b> User systems that access network resources.
-</div>
+      <button class="btn" onclick="toggle('whatIsLan')">Show: What is a LAN?</button>
+      <div id="whatIsLan" class="section hidden">
+        <h2>What is a LAN?</h2>
+        <p>
+          A LAN is a network that connects devices over a small geographical area.
+          It normally uses switches, cabling, wireless access points and sometimes servers.
+        </p>
+      </div>
 
-<!-- ✅ COMPLETION -->
-<div id="complete" class="complete">
-✅ Station Complete — Move to the next QR
-</div>
+      <button class="btn btn-blue" onclick="toggle('benefits')">Show: Benefits</button>
+      <div id="benefits" class="section hidden">
+        <h2>Benefits of a LAN</h2>
+        <ul>
+          <li>Fast communication between local devices.</li>
+          <li>Allows shared access to files, printers and services.</li>
+          <li>Can be easier to manage and secure than a wider network.</li>
+          <li>Supports centralised control of users and resources.</li>
+        </ul>
+      </div>
 
-<!-- ✅ CHALLENGE -->
-<div class="section">
-<h3>🎯 Challenge</h3>
-<p>If the switch fails, what happens to the network?</p>
-</div>
+      <button class="btn btn-orange" onclick="toggle('limitations')">Show: Limitations</button>
+      <div id="limitations" class="section hidden">
+        <h2>Limitations of a LAN</h2>
+        <ul>
+          <li>Limited to a small geographical area.</li>
+          <li>Requires infrastructure such as cabling, switches and cabinets.</li>
+          <li>If key equipment fails, users may lose access to services.</li>
+          <li>Poor design can cause congestion, faults or security issues.</li>
+        </ul>
+      </div>
 
-<p style="color:#38bdf8;">
-Scan the next QR to continue the exercise.
-</p>
+      <button class="btn btn-blue" onclick="toggle('rafExample')">Show: RAF/AES Example</button>
+      <div id="rafExample" class="section hidden">
+        <h2>RAF/AES Example</h2>
+        <p>
+          In an RAF training environment, a LAN could connect classroom computers,
+          instructor workstations, printers, servers and network equipment within the same building.
+        </p>
+        <p>
+          For Communication Infrastructure Technicians, understanding LANs is important because
+          cabling, patching, switches, cabinets and network services all depend on good network design.
+        </p>
+      </div>
 
-</div>
+      <div class="section">
+        <h2>Quick Check</h2>
+        <p><strong>Question:</strong> Where would a LAN most likely be used?</p>
 
+        <button class="btn" onclick="checkAnswer(true)">Inside a single building or site</button>
+        <button class="btn btn-orange" onclick="checkAnswer(false)">Across multiple countries</button>
+
+        <div id="correctAnswer" class="answer correct">
+          ✅ Correct. A LAN is normally used within a limited local area.
+        </div>
+
+        <div id="wrongAnswer" class="answer wrong">
+          ❌ Not quite. A network across multiple countries would be closer to a WAN.
+        </div>
+      </div>
+
+      <div class="ar-box">
+        <h2>Optional AR / 3D Area</h2>
+        <p class="mini-note">
+          This section is ready for the next upgrade. Later, we can add a free 3D model here
+          so students can rotate it or view it in AR on supported phones.
+        </p>
+        <button class="btn btn-blue" onclick="alert('3D/AR model will be added in the next version.')">
+          Launch 3D / AR View
+        </button>
+      </div>
+
+      <button class="btn" onclick="completeMission()">Mark LAN Task Complete</button>
+
+      <p class="footer">
+        TP6 Networks | Scan, explore, answer, move to the next topology.
+      </p>
+
+    </section>
+  </main>
 </body>
 </html>
