@@ -23,7 +23,6 @@ body {
     padding: 20px;
 }
 
-/* Stronger 3D effect */
 .viewer {
     perspective: 1200px;
 }
@@ -64,14 +63,9 @@ function toggle(id) {
 }
 
 function checkAnswer(correct) {
-    if(correct){
-        alert("✅ Correct")
-    } else {
-        alert("❌ Try again")
-    }
+    alert(correct ? "✅ Correct" : "❌ Try again");
 }
 
-// STRONGER 3D EFFECT
 function tilt(event) {
     const img = document.getElementById("lanImg");
 
@@ -102,14 +96,15 @@ function resetTilt() {
 
     <h1>LAN</h1>
 
-    <!-- ✅ INTERACTIVE IMAGE -->
+    <!-- ✅ THIS IS THE FIX -->
     <div class="viewer"
          ontouchmove="tilt(event)"
          onmousemove="tilt(event)"
          ontouchend="resetTilt()"
          onmouseleave="resetTilt()">
 
-        lan.png
+        <img id="lanImg" src="lan.png" alt="LAN Diagram">
+
     </div>
 
     <p><strong>Description:</strong><br>
