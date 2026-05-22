@@ -157,7 +157,7 @@
       border-radius: 12px;
       background: rgba(34, 197, 94, 0.35);
       border: 2px dashed rgba(255, 255, 255, 0.8);
-      opacity: 0.25;
+      opacity: 0;
     }
 
     .tap-zone:active::after {
@@ -165,65 +165,49 @@
     }
 
     /*
-      SAN image tap zones.
-      These are based on the SAN picture you uploaded.
-      Smaller item zones sit above the larger SAN fabric zone.
+      CORRECTED SAN TAP ZONES
+      Only one zone per repeated item.
+      Smaller zones are above the larger fabric/link zones.
     */
 
-    .server-one-zone {
-      top: 19%;
-      left: 5%;
-      width: 27%;
+    .server-zone {
+      top: 18%;
+      left: 4%;
+      width: 31%;
+      height: 27%;
+      z-index: 5;
+    }
+
+    .san-switch-zone {
+      top: 39%;
+      left: 35%;
+      width: 31%;
       height: 24%;
-      z-index: 5;
+      z-index: 6;
     }
 
-    .server-two-zone {
-      top: 56%;
-      left: 5%;
-      width: 27%;
-      height: 25%;
-      z-index: 5;
-    }
-
-    .fibre-switch-zone {
-      top: 38%;
-      left: 38%;
-      width: 25%;
-      height: 25%;
-      z-index: 5;
-    }
-
-    .storage-one-zone {
+    .storage-zone {
       top: 15%;
-      left: 71%;
-      width: 25%;
-      height: 28%;
+      left: 68%;
+      width: 30%;
+      height: 31%;
       z-index: 5;
-    }
-
-    .storage-two-zone {
-      top: 56%;
-      left: 71%;
-      width: 25%;
-      height: 28%;
-      z-index: 5;
-    }
-
-    .san-fabric-zone {
-      top: 25%;
-      left: 25%;
-      width: 51%;
-      height: 48%;
-      z-index: 1;
     }
 
     .connection-lines-zone {
-      top: 30%;
-      left: 25%;
-      width: 52%;
-      height: 39%;
+      top: 29%;
+      left: 24%;
+      width: 54%;
+      height: 42%;
       z-index: 2;
+    }
+
+    .san-fabric-zone {
+      top: 28%;
+      left: 28%;
+      width: 45%;
+      height: 45%;
+      z-index: 1;
     }
 
     .info-box {
@@ -376,11 +360,6 @@
     const topologyName = "SAN";
     const nextTopologyName = "LAN";
 
-    /*
-      SAN is the last page in the route.
-      If all 9 are complete, it will show the final checkpoint.
-      If not, it sends them back to LAN to keep the loop going.
-    */
     const nextClue = "Next QR clue: Return to the Fibre Optic Training Room and look around the network cab area.";
 
     const finalClue = "Final checkpoint: You have completed all 9 network topologies. Return to the instructor and show your completed hunt progress.";
@@ -418,27 +397,27 @@
 
       if (type === "server") {
         title = "Server";
-        text = "Servers connect to the Storage Area Network so they can access shared storage. This allows centralised storage to be used by multiple systems.";
+        text = "Servers connect to the Storage Area Network so they can access shared storage. In this diagram, the server is one of the systems using the SAN.";
       }
 
       if (type === "switch") {
-        title = "Fibre Channel / SAN Switch";
-        text = "The SAN switch connects servers to storage arrays. It controls the dedicated storage traffic between servers and storage devices.";
+        title = "SAN Switch";
+        text = "The SAN switch sits at the centre of the storage network. It connects servers to storage arrays and helps move dedicated storage traffic.";
       }
 
       if (type === "storage") {
         title = "Storage Array";
-        text = "A storage array provides centralised storage. It may contain multiple disks and can support shared storage services for connected servers.";
+        text = "A storage array provides centralised storage. It can support multiple servers and can be designed for high capacity, resilience and performance.";
       }
 
       if (type === "sanfabric") {
         title = "SAN Fabric";
-        text = "The SAN fabric is the dedicated storage network that links servers, SAN switches and storage arrays together.";
+        text = "The SAN fabric is the dedicated storage network made up of SAN switches, links and connected storage devices.";
       }
 
       if (type === "connections") {
         title = "Storage Network Links";
-        text = "These links carry storage traffic between the servers, SAN switch and storage arrays. SANs commonly use high-speed dedicated links.";
+        text = "These links carry storage traffic between servers, the SAN switch and the storage arrays. SAN links are normally designed for high-speed dedicated storage traffic.";
       }
 
       exploredItems.add(type);
@@ -509,9 +488,9 @@
       const locked = document.getElementById("lockedBox");
 
       if (!itemsDone && !questionsDone) {
-        locked.innerHTML = "🔒 Clue locked. Explore all SAN items and answer both quick-check questions.";
+        locked.innerHTML = "🔒 Clue locked. Explore the server, SAN switch, storage array, SAN fabric and connection links. Then answer both quick-check questions.";
       } else if (!itemsDone && questionsDone) {
-        locked.innerHTML = "🔒 Almost there. You answered the questions, now tap the servers, SAN switch, storage arrays and links.";
+        locked.innerHTML = "🔒 Almost there. You answered the questions, now tap the server, SAN switch, storage array, SAN fabric and links.";
       } else if (itemsDone && !questionsDone) {
         locked.innerHTML = "🔒 Almost there. You explored the SAN diagram, now answer both quick-check questions.";
       }
@@ -649,7 +628,7 @@
 
       <div class="mission-box">
         <strong>Mission:</strong>
-        Tap the items in the diagram, reveal the key information, answer both questions,
+        Tap the key parts in the diagram, reveal the information, answer both questions,
         then unlock the clue to your next QR location.
 
         <div class="progress-wrap">
@@ -668,16 +647,14 @@
         <button class="tap-zone san-fabric-zone" onclick="showInfo('sanfabric')" aria-label="SAN fabric"></button>
         <button class="tap-zone connection-lines-zone" onclick="showInfo('connections')" aria-label="SAN connection links"></button>
 
-        <button class="tap-zone server-one-zone" onclick="showInfo('server')" aria-label="Server one"></button>
-        <button class="tap-zone server-two-zone" onclick="showInfo('server')" aria-label="Server two"></button>
-        <button class="tap-zone fibre-switch-zone" onclick="showInfo('switch')" aria-label="Fibre channel switch"></button>
-        <button class="tap-zone storage-one-zone" onclick="showInfo('storage')" aria-label="Storage array one"></button>
-        <button class="tap-zone storage-two-zone" onclick="showInfo('storage')" aria-label="Storage array two"></button>
+        <button class="tap-zone server-zone" onclick="showInfo('server')" aria-label="Server"></button>
+        <button class="tap-zone san-switch-zone" onclick="showInfo('switch')" aria-label="SAN switch"></button>
+        <button class="tap-zone storage-zone" onclick="showInfo('storage')" aria-label="Storage array"></button>
 
       </div>
 
       <p class="tap-hint">
-        Tap the servers, SAN switch, storage arrays, SAN fabric and connection links to explore the SAN topology.
+        Tap one server, the SAN switch, one storage array, the SAN fabric and the connection links.
       </p>
 
       <div id="infoBox" class="info-box"></div>
@@ -762,7 +739,7 @@
       </div>
 
       <div id="lockedBox" class="locked-box">
-        🔒 Clue locked. Explore all SAN items and answer both quick-check questions.
+        🔒 Clue locked. Explore the server, SAN switch, storage array, SAN fabric and connection links. Then answer both quick-check questions.
       </div>
 
       <div id="clueBox" class="clue-box">
