@@ -6,25 +6,31 @@
 
 <title>LAN</title>
 
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
 <style>
 body {
     font-family: Arial;
-    background: #0f172a;
+    background: #020617;
     color: white;
-    margin: 0;
-    padding: 20px;
     text-align: center;
+    padding: 15px;
 }
 
 .card {
     max-width: 450px;
     margin: auto;
-    background: #1e293b;
+    background: #0f172a;
     border-radius: 15px;
     padding: 20px;
 }
 
 h1 { color: #38bdf8; }
+
+.image {
+    width: 100%;
+    border-radius: 10px;
+}
 
 .section {
     text-align: left;
@@ -32,17 +38,26 @@ h1 { color: #38bdf8; }
 }
 
 button {
-    background: #38bdf8;
+    width: 100%;
+    background: #22c55e;
     border: none;
-    padding: 10px;
-    margin-top: 10px;
+    padding: 12px;
+    margin-top: 8px;
     border-radius: 8px;
-    color: black;
     font-weight: bold;
+}
+
+.hidden {
+    display: none;
 }
 </style>
 
 <script>
+function toggle(id) {
+    let el = document.getElementById(id);
+    el.classList.toggle("hidden");
+}
+
 function checkAnswer(correct) {
     if(correct){
         alert("✅ Correct")
@@ -57,38 +72,45 @@ function checkAnswer(correct) {
 <body>
 
 <div class="card">
-    <h1>LAN (Local Area Network)</h1>
 
+    <h1>LAN</h1>
+
+    <!-- IMAGE -->
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/NetworkTopologies-LocalAreaNetwork.png/640px-NetworkTopologies-LocalAreaNetwork.png" class="image">
+
+    <!-- DESCRIPTION -->
     <p><strong>Description:</strong><br>
-    A Local Area Network connects devices within a limited area such as a building, classroom, or base location.
-    It is commonly used in offices, schools, and military facilities.
+    A Local Area Network connects devices within a limited area such as a building, office, or military site.
     </p>
 
-    <div class="section">
-        <h3>✅ Benefits</h3>
+    <!-- INTERACTIVE BUTTONS -->
+    <button onclick="toggle('benefits')">Show Benefits</button>
+    <div id="benefits" class="section hidden">
         <ul>
-            <li>High data transfer speeds</li>
+            <li>High speed communication</li>
             <li>Low latency</li>
-            <li>Easy to manage locally</li>
-            <li>Secure within a controlled environment</li>
+            <li>Centralised control</li>
+            <li>Secure environment</li>
         </ul>
     </div>
 
-    <div class="section">
-        <h3>❌ Drawbacks</h3>
+    <button onclick="toggle('drawbacks')">Show Drawbacks</button>
+    <div id="drawbacks" class="section hidden">
         <ul>
-            <li>Limited to small geographic area</li>
-            <li>Infrastructure required (cabling, switches)</li>
-            <li>Failure of central devices can affect users</li>
+            <li>Limited geographic range</li>
+            <li>Infrastructure required</li>
+            <li>Dependent on internal equipment</li>
         </ul>
     </div>
 
+    <!-- QUIZ -->
     <div class="section">
-        <h3>🧠 Quiz</h3>
-        <p>Which environment best describes a LAN?</p>
-        <button onclick="checkAnswer(true)">A single building or office</button>
-        <button onclick="checkAnswer(false)">Multiple countries</button>
+        <h3>🧠 Quick Check</h3>
+        <p>Where would a LAN most likely be used?</p>
+        <button onclick="checkAnswer(true)">Inside a single building</button>
+        <button onclick="checkAnswer(false)">Across continents</button>
     </div>
+
 </div>
 
 </body>
