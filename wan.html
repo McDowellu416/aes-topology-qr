@@ -147,6 +147,7 @@
 
     /*
       To see tap zones while editing, change opacity from 0 to 0.25.
+      Keep it as 0 for the live lesson.
     */
     .tap-zone::after {
       content: "";
@@ -156,7 +157,7 @@
       border-radius: 12px;
       background: rgba(34, 197, 94, 0.35);
       border: 2px dashed rgba(255, 255, 255, 0.8);
-      opacity: 0.25;
+      opacity: 0;
     }
 
     .tap-zone:active::after {
@@ -164,64 +165,72 @@
     }
 
     /*
-      WAN image tap zones.
-      These are based on the WAN picture you uploaded.
+      IMPROVED WAN TAP ZONES
+      Smaller specific zones sit ABOVE the larger map/link zones.
     */
-
-    .branch-one-zone {
-      top: 23%;
-      left: 4%;
-      width: 27%;
-      height: 22%;
-    }
-
-    .branch-two-zone {
-      top: 23%;
-      left: 70%;
-      width: 27%;
-      height: 22%;
-    }
-
-    .branch-three-zone {
-      top: 61%;
-      left: 4%;
-      width: 27%;
-      height: 24%;
-    }
-
-    .branch-four-zone {
-      top: 61%;
-      left: 70%;
-      width: 27%;
-      height: 24%;
-    }
-
-    .headquarters-zone {
-      top: 58%;
-      left: 37%;
-      width: 27%;
-      height: 28%;
-    }
-
-    .cloud-zone {
-      top: 31%;
-      left: 37%;
-      width: 28%;
-      height: 20%;
-    }
-
-    .wan-links-zone {
-      top: 30%;
-      left: 19%;
-      width: 62%;
-      height: 45%;
-    }
 
     .map-zone {
       top: 8%;
       left: 18%;
       width: 64%;
-      height: 28%;
+      height: 25%;
+      z-index: 1;
+    }
+
+    .wan-links-zone {
+      top: 31%;
+      left: 21%;
+      width: 58%;
+      height: 41%;
+      z-index: 1;
+    }
+
+    .cloud-zone {
+      top: 28%;
+      left: 36%;
+      width: 30%;
+      height: 22%;
+      z-index: 5;
+    }
+
+    .headquarters-zone {
+      top: 58%;
+      left: 36%;
+      width: 29%;
+      height: 30%;
+      z-index: 5;
+    }
+
+    .branch-one-zone {
+      top: 22%;
+      left: 3%;
+      width: 30%;
+      height: 25%;
+      z-index: 5;
+    }
+
+    .branch-two-zone {
+      top: 22%;
+      left: 68%;
+      width: 30%;
+      height: 25%;
+      z-index: 5;
+    }
+
+    .branch-three-zone {
+      top: 60%;
+      left: 3%;
+      width: 30%;
+      height: 27%;
+      z-index: 5;
+    }
+
+    .branch-four-zone {
+      top: 60%;
+      left: 68%;
+      width: 30%;
+      height: 27%;
+      z-index: 5;
     }
 
     .info-box {
@@ -374,10 +383,6 @@
     const topologyName = "WAN";
     const nextTopologyName = "MAN";
 
-    /*
-      Location-based clue.
-      This does not rely on the student already knowing what MAN means.
-    */
     const nextClue = "Next QR clue: Find the nearby classroom that is not the main teaching room. Look around Classroom 1 or Classroom 2.";
 
     const finalClue = "Final checkpoint: You have completed all 9 network topologies. Return to the instructor and show your completed hunt progress.";
@@ -406,12 +411,6 @@
 
     let questionOneComplete = false;
     let questionTwoComplete = false;
-
-    /*
-      =============================
-      IMAGE TAP INFORMATION
-      =============================
-    */
 
     function showInfo(type) {
       const box = document.getElementById("infoBox");
@@ -455,12 +454,6 @@
       box.style.display = "block";
       box.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-
-    /*
-      =============================
-      PAGE PROGRESS
-      =============================
-    */
 
     function updatePageProgress() {
       const count = exploredItems.size;
@@ -525,12 +518,6 @@
         locked.innerHTML = "🔒 Almost there. You explored the WAN diagram, now answer both quick-check questions.";
       }
     }
-
-    /*
-      =============================
-      FULL 9-TOPOLOGY HUNT TRACKER
-      =============================
-    */
 
     function getCompletedTopologies() {
       const saved = localStorage.getItem("completed_topologies");
@@ -680,14 +667,15 @@
 
         <img src="wan.png" alt="WAN topology diagram">
 
+        <button class="tap-zone map-zone" onclick="showInfo('map')" aria-label="Large geographical map area"></button>
+        <button class="tap-zone wan-links-zone" onclick="showInfo('wanlinks')" aria-label="WAN links"></button>
+
         <button class="tap-zone branch-one-zone" onclick="showInfo('branch')" aria-label="Branch office 1"></button>
         <button class="tap-zone branch-two-zone" onclick="showInfo('branch')" aria-label="Branch office 2"></button>
         <button class="tap-zone branch-three-zone" onclick="showInfo('branch')" aria-label="Branch office 3"></button>
         <button class="tap-zone branch-four-zone" onclick="showInfo('branch')" aria-label="Branch office 4"></button>
         <button class="tap-zone headquarters-zone" onclick="showInfo('headquarters')" aria-label="Headquarters"></button>
         <button class="tap-zone cloud-zone" onclick="showInfo('cloud')" aria-label="WAN cloud"></button>
-        <button class="tap-zone wan-links-zone" onclick="showInfo('wanlinks')" aria-label="WAN links"></button>
-        <button class="tap-zone map-zone" onclick="showInfo('map')" aria-label="Large geographical area"></button>
 
       </div>
 
