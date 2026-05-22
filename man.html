@@ -1,1 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <title>MAN Topology Hunt</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #1e3a8a 0%, #020617 42%, #000000 100%);
+      color: white;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .page {
+      max-width: 590px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 34px rgba(56, 189, 248, 0.18);
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .top-label {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.15);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    .score-pill {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.14);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    h1 {
+      margin: 8px 0 14px;
+      color: #38bdf8;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+
+    .mission-box {
+      background: rgba(8, 47, 73, 0.8);
+      border: 1px solid rgba(125, 211, 252, 0.45);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+
+    .mission-box strong {
+      color: #7dd3fc;
+    }
+
+    .progress-wrap {
+      margin-top: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 14px;
+      background: linear-gradient(90deg, #22c55e, #38bdf8);
+      transition: width 0.3s ease;
+    }
+
+    .hunt-progress-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: #dbeafe;
+      line-height: 1.4;
+      font-size: 0.9rem;
+    }
+
+    .image-zone {
+      position: relative;
+      width: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: #020617;
+      margin-bottom: 12px;
+    }
+
+    .image-zone img {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .tap-hint {
+      font-size: 0.9rem;
+      color: #93c5fd;
+      margin: 8px 0 14px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .tap-zone {
+      position: absolute;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+    }
+
+    /*
+      To see tap zones while editing, change opacity from 0 to 0.25.
+      Keep it as 0 for the live lesson.
+    */
+    .tap-zone::after {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      background: rgba(34, 197, 94, 0.35);
+      border: 2px dashed rgba(255, 255, 255, 0.8);
+      opacity: 0;
+    }
+
+    .tap-zone:active::after {
+      opacity: 0.35;
+    }
+
+    /*
+      MAN image tap zones.
+      These are based on the MAN picture you uploaded.
+      Smaller named locations sit above the larger city/link zones.
+    */
+
+    .city-zone {
+      top: 16%;
+      left: 20%;
+      width: 60%;
+      height: 63%;
+      z-index: 1;
+    }
+
+    .man-links-zone {
+      top: 27%;
+      left: 20%;
+      width: 61%;
+      height: 50%;
+      z-index: 2;
+    }
+
+    .school-zone {
+      top: 18%;
+      left: 2%;
+      width: 29%;
+      height: 25%;
+      z-index: 5;
+    }
+
+    .office-zone {
+      top: 18%;
+      left: 69%;
+      width: 29%;
+      height: 25%;
+      z-index: 5;
+    }
+
+    .library-zone {
+      top: 51%;
+      left: 2%;
+      width: 30%;
+      height: 26%;
+      z-index: 5;
+    }
+
+    .hospital-zone {
+      top: 51%;
+      left: 69%;
+      width: 29%;
+      height: 26%;
+      z-index: 5;
+    }
+
+    .data-centre-zone {
+      top: 68%;
+      left: 38%;
+      width: 27%;
+      height: 26%;
+      z-index: 5;
+    }
+
+    .central-city-zone {
+      top: 26%;
+      left: 38%;
+      width: 28%;
+      height: 25%;
+      z-index: 5;
+    }
+
+    .info-box {
+      display: none;
+      background: rgba(2, 6, 23, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 12px 0;
+      line-height: 1.45;
+    }
+
+    .info-box h3 {
+      margin-top: 0;
+      color: #7dd3fc;
+    }
+
+    .explored-tag {
+      color: #86efac;
+      font-weight: bold;
+    }
+
+    .section {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(30, 41, 59, 0.86);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      font-size: 1.15rem;
+      color: #bfdbfe;
+    }
+
+    .section p,
+    .section li {
+      color: #e2e8f0;
+      line-height: 1.45;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #052e16;
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.24);
+    }
+
+    .btn-blue {
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      color: white;
+    }
+
+    .btn-dark {
+      background: linear-gradient(135deg, #475569, #1e293b);
+      color: white;
+    }
+
+    .btn-answer {
+      background: linear-gradient(135deg, #334155, #1e293b);
+      color: white;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: none;
+    }
+
+    .btn-answer:hover {
+      background: linear-gradient(135deg, #475569, #334155);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .answer {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .correct {
+      background: rgba(34, 197, 94, 0.18);
+      border: 1px solid rgba(34, 197, 94, 0.55);
+      color: #86efac;
+    }
+
+    .wrong {
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.55);
+      color: #fca5a5;
+    }
+
+    .clue-box {
+      display: none;
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(22, 101, 52, 0.85), rgba(8, 47, 73, 0.9));
+      border: 1px solid rgba(134, 239, 172, 0.65);
+      box-shadow: 0 0 26px rgba(34, 197, 94, 0.18);
+    }
+
+    .clue-box h2 {
+      color: #bbf7d0;
+      margin-top: 0;
+    }
+
+    .clue-text {
+      font-size: 1.05rem;
+      color: white;
+      line-height: 1.5;
+      font-weight: bold;
+    }
+
+    .locked-box {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(69, 26, 3, 0.65);
+      border: 1px dashed rgba(251, 191, 36, 0.7);
+      color: #fde68a;
+      line-height: 1.4;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 18px;
+    }
+  </style>
+
+  <script>
+    /*
+      =============================
+      PAGE SETTINGS - MAN
+      =============================
+    */
+
+    const topologyKey = "man";
+    const topologyName = "MAN";
+    const nextTopologyName = "SAN";
+
+    /*
+      Location-based clue.
+      This does not rely on the student already knowing what SAN means.
+    */
+    const nextClue = "Next QR clue: Find where equipment, records and storage matter most. Look around the stores area.";
+
+    const finalClue = "Final checkpoint: You have completed all 9 network topologies. Return to the instructor and show your completed hunt progress.";
+
+    const allTopologies = [
+      "lan",
+      "star",
+      "bus",
+      "ring",
+      "mesh",
+      "point-to-point",
+      "wan",
+      "man",
+      "san"
+    ];
+
+    const requiredItems = [
+      "school",
+      "office",
+      "library",
+      "hospital",
+      "datacentre",
+      "city",
+      "manlinks"
+    ];
+
+    const exploredItems = new Set();
+
+    let questionOneComplete = false;
+    let questionTwoComplete = false;
+
+    function showInfo(type) {
+      const box = document.getElementById("infoBox");
+
+      let title = "";
+      let text = "";
+
+      if (type === "school") {
+        title = "School Site";
+        text = "A MAN can connect separate organisations or buildings across a town or city area. This school represents one connected local site.";
+      }
+
+      if (type === "office") {
+        title = "Office Building";
+        text = "The office building is another site on the metropolitan network. A MAN can link sites that are too spread out for a simple LAN but not as wide as a WAN.";
+      }
+
+      if (type === "library") {
+        title = "Library Site";
+        text = "This represents another local network connected into the wider metropolitan network. Each site may have its own LAN inside the building.";
+      }
+
+      if (type === "hospital") {
+        title = "Hospital Site";
+        text = "A hospital or similar large organisation may need reliable connectivity to other local sites, data centres or services across the same town or city.";
+      }
+
+      if (type === "datacentre") {
+        title = "Data Centre";
+        text = "The data centre can provide shared services, storage or applications to connected sites across the metropolitan area.";
+      }
+
+      if (type === "city") {
+        title = "Metropolitan Area";
+        text = "A MAN covers a metropolitan area, such as a town, city, campus or group of nearby sites. It sits between a LAN and a WAN in terms of scale.";
+      }
+
+      if (type === "manlinks") {
+        title = "MAN Links";
+        text = "These links connect the different sites within the metropolitan area. They may use fibre, wireless links or service provider infrastructure.";
+      }
+
+      exploredItems.add(type);
+      updatePageProgress();
+
+      box.innerHTML =
+        "<h3>" + title + "</h3>" +
+        "<p>" + text + "</p>" +
+        "<p class='explored-tag'>Item explored ✅</p>";
+
+      box.style.display = "block";
+      box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function updatePageProgress() {
+      const count = exploredItems.size;
+      const total = requiredItems.length;
+      const percentage = Math.round((count / total) * 100);
+
+      document.getElementById("exploreCount").innerText = count + "/" + total + " items explored";
+      document.getElementById("progressBar").style.width = percentage + "%";
+
+      checkUnlockStatus();
+    }
+
+    function toggle(id) {
+      const element = document.getElementById(id);
+      element.classList.toggle("hidden");
+    }
+
+    function answerQuestion(questionNumber, isCorrect) {
+      const correctBox = document.getElementById("correctAnswer" + questionNumber);
+      const wrongBox = document.getElementById("wrongAnswer" + questionNumber);
+
+      correctBox.style.display = "none";
+      wrongBox.style.display = "none";
+
+      if (isCorrect) {
+        correctBox.style.display = "block";
+
+        if (questionNumber === 1) {
+          questionOneComplete = true;
+        }
+
+        if (questionNumber === 2) {
+          questionTwoComplete = true;
+        }
+      } else {
+        wrongBox.style.display = "block";
+      }
+
+      checkUnlockStatus();
+    }
+
+    function checkUnlockStatus() {
+      const allItemsExplored = exploredItems.size >= requiredItems.length;
+      const allQuestionsComplete = questionOneComplete && questionTwoComplete;
+
+      if (allItemsExplored && allQuestionsComplete) {
+        markThisTopologyComplete();
+        unlockClue();
+      } else {
+        updateLockedMessage(allItemsExplored, allQuestionsComplete);
+      }
+    }
+
+    function updateLockedMessage(itemsDone, questionsDone) {
+      const locked = document.getElementById("lockedBox");
+
+      if (!itemsDone && !questionsDone) {
+        locked.innerHTML = "🔒 Clue locked. Explore all MAN items and answer both quick-check questions.";
+      } else if (!itemsDone && questionsDone) {
+        locked.innerHTML = "🔒 Almost there. You answered the questions, now tap the sites, city area and MAN links.";
+      } else if (itemsDone && !questionsDone) {
+        locked.innerHTML = "🔒 Almost there. You explored the MAN diagram, now answer both quick-check questions.";
+      }
+    }
+
+    function getCompletedTopologies() {
+      const saved = localStorage.getItem("completed_topologies");
+
+      if (!saved) {
+        return [];
+      }
+
+      try {
+        return JSON.parse(saved);
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveCompletedTopologies(list) {
+      localStorage.setItem("completed_topologies", JSON.stringify(list));
+    }
+
+    function markThisTopologyComplete() {
+      let completed = getCompletedTopologies();
+
+      if (!completed.includes(topologyKey)) {
+        completed.push(topologyKey);
+        saveCompletedTopologies(completed);
+      }
+
+      updateFullHuntProgress();
+    }
+
+    function updateFullHuntProgress() {
+      const completed = getCompletedTopologies();
+      const completedCount = completed.length;
+      const totalCount = allTopologies.length;
+
+      const remaining = allTopologies.filter(function (item) {
+        return !completed.includes(item);
+      });
+
+      let remainingText = "";
+
+      if (remaining.length === 0) {
+        remainingText = "All topologies completed.";
+      } else {
+        remainingText = "Still to complete: " + remaining.map(formatTopologyName).join(", ");
+      }
+
+      document.getElementById("fullHuntProgress").innerHTML =
+        "<strong>Full hunt progress:</strong> " +
+        completedCount + "/" + totalCount + " topologies complete.<br>" +
+        remainingText;
+    }
+
+    function formatTopologyName(key) {
+      if (key === "lan") return "LAN";
+      if (key === "star") return "STAR";
+      if (key === "bus") return "BUS";
+      if (key === "ring") return "RING";
+      if (key === "mesh") return "MESH";
+      if (key === "point-to-point") return "POINT-TO-POINT";
+      if (key === "wan") return "WAN";
+      if (key === "man") return "MAN";
+      if (key === "san") return "SAN";
+      return key.toUpperCase();
+    }
+
+    function allTopologiesComplete() {
+      const completed = getCompletedTopologies();
+
+      return allTopologies.every(function (item) {
+        return completed.includes(item);
+      });
+    }
+
+    function unlockClue() {
+      const clueBox = document.getElementById("clueBox");
+      const lockedBox = document.getElementById("lockedBox");
+
+      if (allTopologiesComplete()) {
+        document.getElementById("clueTitle").innerText = "Final Checkpoint Unlocked";
+        document.getElementById("clueText").innerText = finalClue;
+      } else {
+        document.getElementById("clueTitle").innerText = "Next QR Clue Unlocked";
+        document.getElementById("clueText").innerText = nextClue;
+      }
+
+      clueBox.style.display = "block";
+      lockedBox.style.display = "none";
+    }
+
+    function completeMission() {
+      const allItemsExplored = exploredItems.size >= requiredItems.length;
+      const allQuestionsComplete = questionOneComplete && questionTwoComplete;
+
+      if (allItemsExplored && allQuestionsComplete && allTopologiesComplete()) {
+        alert("✅ Full hunt complete. Return to the instructor.");
+      } else if (allItemsExplored && allQuestionsComplete) {
+        alert("✅ " + topologyName + " complete. Follow the clue to the next QR.");
+      } else {
+        alert("🔒 Not complete yet. Explore all items and answer both questions.");
+      }
+    }
+
+    function resetHuntProgress() {
+      const confirmReset = confirm("Reset this phone's hunt progress? Only use this before starting a fresh run.");
+
+      if (confirmReset) {
+        localStorage.removeItem("completed_topologies");
+        location.reload();
+      }
+    }
+
+    window.onload = function () {
+      updatePageProgress();
+      updateLockedMessage(false, false);
+      updateFullHuntProgress();
+    };
+  </script>
+</head>
+
+<body>
+  <main class="page">
+    <section class="card">
+
+      <div class="top-row">
+        <div class="top-label">NETWORK TOPOLOGY HUNT</div>
+        <div id="exploreCount" class="score-pill">0/7 items explored</div>
+      </div>
+
+      <h1>MAN Topology</h1>
+
+      <div class="mission-box">
+        <strong>Mission:</strong>
+        Tap the items in the diagram, reveal the key information, answer both questions,
+        then unlock the clue to your next QR location.
+
+        <div class="progress-wrap">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <div id="fullHuntProgress" class="hunt-progress-box">
+          Full hunt progress loading...
+        </div>
+      </div>
+
+      <div class="image-zone">
+
+        <img src="man.png" alt="MAN topology diagram">
+
+        <button class="tap-zone city-zone" onclick="showInfo('city')" aria-label="Metropolitan city area"></button>
+        <button class="tap-zone man-links-zone" onclick="showInfo('manlinks')" aria-label="MAN links"></button>
+
+        <button class="tap-zone school-zone" onclick="showInfo('school')" aria-label="School site"></button>
+        <button class="tap-zone office-zone" onclick="showInfo('office')" aria-label="Office building"></button>
+        <button class="tap-zone library-zone" onclick="showInfo('library')" aria-label="Library site"></button>
+        <button class="tap-zone hospital-zone" onclick="showInfo('hospital')" aria-label="Hospital site"></button>
+        <button class="tap-zone data-centre-zone" onclick="showInfo('datacentre')" aria-label="Data centre"></button>
+        <button class="tap-zone central-city-zone" onclick="showInfo('city')" aria-label="Central city area"></button>
+
+      </div>
+
+      <p class="tap-hint">
+        Tap the school, office building, library, hospital, data centre, city area and connecting links to explore the MAN topology.
+      </p>
+
+      <div id="infoBox" class="info-box"></div>
+
+      <button class="btn" onclick="toggle('whatIsMan')">Show: What is a MAN?</button>
+      <div id="whatIsMan" class="section hidden">
+        <h2>What is a MAN?</h2>
+        <p>
+          A Metropolitan Area Network connects networks across a town, city, campus or local metropolitan area.
+        </p>
+        <p>
+          It is larger than a LAN but usually smaller than a WAN. A MAN can connect multiple buildings or sites that are close enough to be part of the same local area.
+        </p>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('benefits')">Show: Benefits</button>
+      <div id="benefits" class="section hidden">
+        <h2>Benefits of a MAN</h2>
+        <ul>
+          <li>Connects multiple local sites across a town, city or campus.</li>
+          <li>Can provide faster local connectivity than wider long-distance links.</li>
+          <li>Supports shared services between nearby organisations or buildings.</li>
+          <li>Useful for linking schools, offices, data centres and public services.</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('limitations')">Show: Limitations</button>
+      <div id="limitations" class="section hidden">
+        <h2>Limitations of a MAN</h2>
+        <ul>
+          <li>More complex than a simple LAN.</li>
+          <li>May rely on service providers, fibre routes or wireless links.</li>
+          <li>Costs can increase as more sites are connected.</li>
+          <li>Security and resilience need careful planning across all connected sites.</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-blue" onclick="toggle('rafExample')">Show: RAF/AES Example</button>
+      <div id="rafExample" class="section hidden">
+        <h2>RAF/AES Example</h2>
+        <p>
+          A MAN-style design could be used to link multiple buildings across a large site, camp, airfield or training estate.
+        </p>
+        <p>
+          For Communication Infrastructure Technicians, this links to route planning, fibre infrastructure, building entry points,
+          cabinets, patching, network resilience and connecting different areas of a site together.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Quick Check 1</h2>
+        <p><strong>Question:</strong> What does MAN stand for?</p>
+
+        <button class="btn btn-answer" onclick="answerQuestion(1, false)">Main Access Node</button>
+        <button class="btn btn-answer" onclick="answerQuestion(1, true)">Metropolitan Area Network</button>
+        <button class="btn btn-answer" onclick="answerQuestion(1, false)">Multiple Antenna Network</button>
+
+        <div id="correctAnswer1" class="answer correct">
+          ✅ Correct. MAN stands for Metropolitan Area Network.
+        </div>
+
+        <div id="wrongAnswer1" class="answer wrong">
+          ❌ Not quite. MAN stands for Metropolitan Area Network.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Quick Check 2</h2>
+        <p><strong>Question:</strong> Which description best fits a MAN?</p>
+
+        <button class="btn btn-answer" onclick="answerQuestion(2, false)">A network only inside one room</button>
+        <button class="btn btn-answer" onclick="answerQuestion(2, false)">A direct link between only two devices</button>
+        <button class="btn btn-answer" onclick="answerQuestion(2, true)">A network connecting sites across a town, city or campus</button>
+
+        <div id="correctAnswer2" class="answer correct">
+          ✅ Correct. A MAN connects networks across a metropolitan area, such as a town, city or campus.
+        </div>
+
+        <div id="wrongAnswer2" class="answer wrong">
+          ❌ Not quite. A MAN usually connects sites across a town, city, campus or similar local area.
+        </div>
+      </div>
+
+      <div id="lockedBox" class="locked-box">
+        🔒 Clue locked. Explore all MAN items and answer both quick-check questions.
+      </div>
+
+      <div id="clueBox" class="clue-box">
+        <h2 id="clueTitle">Next QR Clue Unlocked</h2>
+        <p id="clueText" class="clue-text"></p>
+      </div>
+
+      <button class="btn" onclick="completeMission()">Check Completion</button>
+
+      <button class="btn btn-dark" onclick="resetHuntProgress()">Reset Hunt Progress</button>
+
+      <p class="footer">
+        TP6 Networks | Complete all 9 QR tasks to finish the hunt.
+      </p>
+
+    </section>
+  </main>
+</body>
+</html>
