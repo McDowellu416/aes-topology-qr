@@ -23,17 +23,16 @@ body {
     padding: 20px;
 }
 
-/* 3D effect container */
+/* Stronger 3D effect */
 .viewer {
-    perspective: 1000px;
-    margin-bottom: 15px;
+    perspective: 1200px;
 }
 
 .viewer img {
     width: 100%;
     border-radius: 10px;
-    transform: rotateY(0deg) rotateX(0deg);
-    transition: transform 0.2s;
+    transform: rotateY(0deg) rotateX(0deg) scale(1);
+    transition: transform 0.1s;
 }
 
 h1 { color: #38bdf8; }
@@ -72,20 +71,26 @@ function checkAnswer(correct) {
     }
 }
 
-// 3D tilt effect
+// STRONGER 3D EFFECT
 function tilt(event) {
     const img = document.getElementById("lanImg");
+
     let x = event.touches ? event.touches[0].clientX : event.clientX;
     let y = event.touches ? event.touches[0].clientY : event.clientY;
 
-    let rotateY = (x / window.innerWidth - 0.5) * 20;
-    let rotateX = (0.5 - y / window.innerHeight) * 20;
+    let rotateY = (x / window.innerWidth - 0.5) * 50;
+    let rotateX = (0.5 - y / window.innerHeight) * 50;
 
-    img.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+    img.style.transform = `
+        rotateY(${rotateY}deg)
+        rotateX(${rotateX}deg)
+        scale(1.05)
+    `;
 }
 
 function resetTilt() {
-    document.getElementById("lanImg").style.transform = "rotateY(0deg) rotateX(0deg)";
+    document.getElementById("lanImg").style.transform =
+        "rotateY(0deg) rotateX(0deg) scale(1)";
 }
 </script>
 
@@ -104,7 +109,7 @@ function resetTilt() {
          ontouchend="resetTilt()"
          onmouseleave="resetTilt()">
 
-        <img src="lan.png" id="lanImg">
+        lan.png
     </div>
 
     <p><strong>Description:</strong><br>
@@ -141,3 +146,4 @@ function resetTilt() {
 
 </body>
 </html>
+``
