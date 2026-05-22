@@ -32,12 +32,12 @@ body {
     border-radius: 10px;
 }
 
-/* INVISIBLE CLICK ZONES */
+/* Invisible clickable areas */
 .zone {
     position: absolute;
 }
 
-/* Adjust these positions to fit your image */
+/* Adjust positions if needed */
 .server { top: 50%; right: 5%; width: 25%; height: 30%; }
 .switch { top: 35%; left: 35%; width: 30%; height: 20%; }
 .desktop { top: 70%; left: 30%; width: 35%; height: 25%; }
@@ -52,23 +52,40 @@ body {
     text-align: left;
 }
 
+/* Section styling */
+.section {
+    text-align: left;
+    margin-top: 15px;
+}
+
 h1 { color: #38bdf8; }
 
-button {
-    width: 100%;
-    background: #22c55e;
-    border: none;
-    padding: 12px;
-    margin-top: 8px;
-    border-radius: 8px;
+.complete {
+    display: none;
+    margin-top: 15px;
+    color: lime;
     font-weight: bold;
 }
 </style>
 
 <script>
-function toggleInfo(id) {
+// Track progress
+let found = {
+    server: false,
+    switch: false,
+    desktop: false
+};
+
+function toggleInfo(id, key) {
     let el = document.getElementById(id);
+
     el.style.display = (el.style.display === "block") ? "none" : "block";
+
+    found[key] = true;
+
+    if (found.server && found.switch && found.desktop) {
+        document.getElementById("complete").style.display = "block";
+    }
 }
 </script>
 
@@ -80,36 +97,61 @@ function toggleInfo(id) {
 
 <h1>LAN</h1>
 
+<!-- ✅ MISSION -->
+<p><strong>Mission:</strong><br>
+Identify key components within this network. Tap each device and understand its role.
+</p>
+
+<!-- ✅ INTERACTIVE IMAGE -->
 <div class="viewer">
 
-    <img src="lan.png">
+    <img src="lan.png" alt="LAN Diagram">
 
-    <!-- INVISIBLE HOTSPOTS -->
-    <div class="zone server" onclick="toggleInfo('serverInfo')"></div>
-    <div class="zone switch" onclick="toggleInfo('switchInfo')"></div>
-    <div class="zone desktop" onclick="toggleInfo('desktopInfo')"></div>
+    <div class="zone server" onclick="toggleInfo('serverInfo','server')"></div>
+    <div class="zone switch" onclick="toggleInfo('switchInfo','switch')"></div>
+    <div class="zone desktop" onclick="toggleInfo('desktopInfo','desktop')"></div>
 
 </div>
 
-<!-- INFO BOXES -->
+<!-- ✅ TASK LIST -->
+<div class="section">
+<h3>✅ Tasks</h3>
+<ul>
+<li>Find the switch</li>
+<li>Identify what the server does</li>
+<li>Understand end devices</li>
+</ul>
+</div>
+
+<!-- ✅ INFO BOXES -->
 <div id="serverInfo" class="infoBox">
-<b>Server:</b> Stores and manages network data, users, and services.
+<b>Server:</b> Stores and manages network data, services, and users.
 </div>
 
 <div id="switchInfo" class="infoBox">
-<b>Switch:</b> Connects all devices and directs data to the correct destination.
+<b>Switch:</b> Connects devices and directs traffic efficiently within the LAN.
 </div>
 
 <div id="desktopInfo" class="infoBox">
-<b>End Devices:</b> User machines that access network resources.
+<b>End Devices:</b> User systems that access network resources.
 </div>
 
-<p><strong>Description:</strong><br>
-A Local Area Network connects devices within a limited area such as a building or military site.
+<!-- ✅ COMPLETION -->
+<div id="complete" class="complete">
+✅ Station Complete — Move to the next QR
+</div>
+
+<!-- ✅ CHALLENGE -->
+<div class="section">
+<h3>🎯 Challenge</h3>
+<p>If the switch fails, what happens to the network?</p>
+</div>
+
+<p style="color:#38bdf8;">
+Scan the next QR to continue the exercise.
 </p>
 
 </div>
 
 </body>
 </html>
-``
