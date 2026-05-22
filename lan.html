@@ -81,3 +81,32 @@ function checkAnswer(correct) {
     </p>
 
     <button onclick="toggle('benefits')">Show Benefits</button>
+    <div id="benefits" class="section hidden">
+        <ul>
+            <li>High speed communication</li>
+            <li>Low latency</li>
+            <li>Centralised control</li>
+            <li>Secure environment</li>
+        </ul>
+    </div>
+
+    <button onclick="toggle('drawbacks')">Show Drawbacks</button>
+    <div id="drawbacks" class="section hidden">
+        <ul>
+            <li>Limited geographic range</li>
+            <li>Infrastructure required</li>
+            <li>Dependent on internal equipment</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h3>🧠 Quick Check</h3>
+        <p>Where would a LAN most likely be used?</p>
+        <button onclick="checkAnswer(true)">Inside a single building</button>
+        <button onclick="checkAnswer(false)">Across continents</button>
+    </div>
+
+</div>
+
+</body>
+</html>
