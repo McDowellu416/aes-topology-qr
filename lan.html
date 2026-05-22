@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LAN</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+.card {
+    max-width: 450px;
+    margin: auto;
+    background: #1e293b;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+h1 { color: #38bdf8; }
+
+.section {
+    text-align: left;
+    margin-top: 15px;
+}
+
+button {
+    background: #38bdf8;
+    border: none;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 8px;
+    color: black;
+    font-weight: bold;
+}
+</style>
+
+<script>
+function checkAnswer(correct) {
+    if(correct){
+        alert("✅ Correct")
+    } else {
+        alert("❌ Try again")
+    }
+}
+</script>
+
+</head>
+
+<body>
+
+<div class="card">
+    <h1>LAN (Local Area Network)</h1>
+
+    <p><strong>Description:</strong><br>
+    A Local Area Network connects devices within a limited area such as a building, classroom, or base location.
+    It is commonly used in offices, schools, and military facilities.
+    </p>
+
+    <div class="section">
+        <h3>✅ Benefits</h3>
+        <ul>
+            <li>High data transfer speeds</li>
+            <li>Low latency</li>
+            <li>Easy to manage locally</li>
+            <li>Secure within a controlled environment</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h3>❌ Drawbacks</h3>
+        <ul>
+            <li>Limited to small geographic area</li>
+            <li>Infrastructure required (cabling, switches)</li>
+            <li>Failure of central devices can affect users</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h3>🧠 Quiz</h3>
+        <p>Which environment best describes a LAN?</p>
+        <button onclick="checkAnswer(true)">A single building or office</button>
+        <button onclick="checkAnswer(false)">Multiple countries</button>
+    </div>
+</div>
+
+</body>
+</html>
